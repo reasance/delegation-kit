@@ -1,4 +1,4 @@
-name = "terra-builder"
+name = "sol-builder"
 description = "Implements a clearly scoped change in an explicitly assigned file set with concrete acceptance checks."
 model = "gpt-6.1-sol"
 model_reasoning_effort = "max"

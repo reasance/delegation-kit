@@ -25,9 +25,9 @@ DELEGATION_CONFIG_FILE="$TMP/kimi-senior.json" "$ROOT/bin/delegation-route" reso
 # every shipped preset row is technically compatible: the preset declares only what its adapter runs
 "$ROOT/bin/delegation-route" table --json | jq -e 'all(.profiles[]; .technical_compatibility)' >/dev/null; ok
 # review lanes: optional accepts the same family, cross-family excludes it
-"$ROOT/bin/delegation-route" resolve --lane routine-review --producer-profile terra-builder --selected-profile terra-reviewer --json | jq -e '.selection_validated and .review_policy == "optional"' >/dev/null; ok
+"$ROOT/bin/delegation-route" resolve --lane routine-review --producer-profile sol-builder --selected-profile sol-reviewer --json | jq -e '.selection_validated and .review_policy == "optional"' >/dev/null; ok
 jq '.review_policy = "cross-family"' "$DELEGATION_CONFIG_FILE" >"$TMP/strict.json"
-DELEGATION_CONFIG_FILE="$TMP/strict.json" "$ROOT/bin/delegation-route" resolve --lane routine-review --producer-profile terra-builder --json | jq -e 'all(.choices[]; .family != "openai") and any(.blocked[]; .profile == "terra-reviewer")' >/dev/null; ok
+DELEGATION_CONFIG_FILE="$TMP/strict.json" "$ROOT/bin/delegation-route" resolve --lane routine-review --producer-profile sol-builder --json | jq -e 'all(.choices[]; .family != "openai") and any(.blocked[]; .profile == "sol-reviewer")' >/dev/null; ok
 # table: one row per profile x role, no historical fields
 "$ROOT/bin/delegation-route" table --json | jq -e '(.profiles | length) > 0 and all(.profiles[]; has("technical_compatibility") and has("capabilities") and (has("evidence") | not)) and (has("compound_lanes") | not)' >/dev/null; ok
 # unknown lane and unknown profile fail closed

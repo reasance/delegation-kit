@@ -1,4 +1,4 @@
-name = "terra-reviewer"
+name = "sol-reviewer"
 description = "High-level read-only reviewer for correctness, security, regressions, and missing tests."
 model = "gpt-6.1-sol"
 model_reasoning_effort = "max"

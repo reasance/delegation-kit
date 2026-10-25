@@ -286,18 +286,18 @@ done
 if [ "$total" = 0 ]; then bad "no source profiles in $KIT/codex/profiles"
 elif [ "$miss" = 0 ]; then ok "all $total ephemeral -p profiles installed"
 else bad "$miss/$total ephemeral profile(s) missing from $CODEX_HOME/ — run ./install.sh"; fi
-if [ -f "$CODEX_HOME/agents/terra-reviewer.toml" ] \
-    && [ -f "$CODEX_HOME/terra-reviewer.config.toml" ] \
-    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fq 'configured review policy' "$CODEX_HOME/agents/terra-reviewer.toml"; then
-  ok "terra-reviewer pinned to gpt-6.1-sol/max, read-only, and configured review policy"
+if [ -f "$CODEX_HOME/agents/sol-reviewer.toml" ] \
+    && [ -f "$CODEX_HOME/sol-reviewer.config.toml" ] \
+    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fq 'configured review policy' "$CODEX_HOME/agents/sol-reviewer.toml"; then
+  ok "sol-reviewer pinned to gpt-6.1-sol/max, read-only, and configured review policy"
 else
-  bad "terra-reviewer missing, stale, or not gpt-6.1-sol/max, read-only, under the configured review policy — re-run ./install.sh"
+  bad "sol-reviewer missing, stale, or not gpt-6.1-sol/max, read-only, under the configured review policy — re-run ./install.sh"
 fi
 if [ -f "$CODEX_HOME/agents/astra-reviewer.toml" ] \
     && [ -f "$CODEX_HOME/astra-reviewer.config.toml" ] \
@@ -701,7 +701,7 @@ if [ -f "$cfg" ]; then
   # `features = { multi_agent = true }`; strip comments, then require an explicit = true
   ma=false; sed 's/#.*//' "$cfg" | grep -Eq 'multi_agent[[:space:]]*=[[:space:]]*true' && ma=true
   [ "$ma" = true ] && ok "multi_agent = true — native Codex delegation can fire" \
-    || warn "multi_agent is not true — Codex cannot spawn its native luna/terra/astra subagents (the cross-tool bridge still works). Merge codex/config.snippet.toml"
+    || warn "multi_agent is not true — Codex cannot spawn its native luna/sol/astra subagents (the cross-tool bridge still works). Merge codex/config.snippet.toml"
   # sandbox_mode is a root-level key: read only the region before the first [table] so a
   # [profiles.*] override isn't mistaken for the effective posture
   sbx="$(sed '/^[[:space:]]*\[/q' "$cfg" | grep -E '^[[:space:]]*sandbox_mode[[:space:]]*=' | head -1 | sed 's/#.*//; s/.*=[[:space:]]*//; s/"//g; s/[[:space:]]*$//')"

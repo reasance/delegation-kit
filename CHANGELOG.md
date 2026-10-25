@@ -13,7 +13,8 @@ code paths patched by hand.
 
 - **Presets move off retired models**:
   - `luna-clerk` → `gpt-6-luna`;
-  - `terra-builder`, `terra-reviewer` → `gpt-6.1-sol`;
+  - `terra-builder`, `terra-reviewer` → `gpt-6.1-sol`, renamed `sol-builder`
+    and `sol-reviewer` (owner decision);
   - `sonnet-clerk`, `sonnet-scout`, `sonnet-reviewer` → `claude-sonnet-5-5`;
   - `fable-judge`, `fable-policy-annotator` → `claude-fable-5-1`;
   - `grok-build` → `grok-4.7`.
@@ -32,6 +33,10 @@ code paths patched by hand.
     price for it.
 - **`delegation-grok`** runs `grok-4.7` by default and reads its usage under
   `grok-4.7-build`. `doctor.sh` checks for the same model.
+- **The installer removes the old `terra-*` Codex profiles** it wrote, unless
+  you edited them. `uninstall.sh` removes both names. A personal
+  configuration keeps its `terra-*` profiles until you rename them; see
+  `docs/user-configuration.md`.
 - **`delegation-kimi` refuses K3.** A personal configuration that still names
   `kimi-k3` must move to `kimi-k3.1-pro`; see `docs/user-configuration.md`.
 

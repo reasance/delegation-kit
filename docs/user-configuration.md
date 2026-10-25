@@ -247,6 +247,11 @@ refresh` writes a local catalog ([the router page](router.md)).
   `kimi-k3.1-pro`). A file made earlier keeps `kimi-k3`; since K3 was
   retired, `delegation-kimi` refuses it. To move, rename the profile, and the
   pool entries and routes that name it, and set `model` to `kimi-k3.1-pro`.
+- The next release renames `terra-builder` and `terra-reviewer` to
+  `sol-builder` and `sol-reviewer`, on `gpt-6.1-sol`: GPT-5.6 Terra is
+  retired. A file made earlier keeps the `terra-*` profiles and their
+  `gpt-5.6-terra` model. To move, rename the profiles, and the pool entries
+  and routes that name them, and set `model` to `gpt-6.1-sol`.
 - 0.33.0 added the `minimax-m3.1-flash` profile to the preset. A file made
   earlier does not get it; copy it from the example under *Adding a model*,
   or from `config/presets.json`, and set `MINIMAX_API_KEY`.

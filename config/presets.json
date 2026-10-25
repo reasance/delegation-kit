@@ -12,7 +12,7 @@
         "effort": "max"
       }
     },
-    "terra-builder": {
+    "sol-builder": {
       "adapter": "codex",
       "model": "gpt-6.1-sol",
       "family": "openai",
@@ -23,7 +23,7 @@
         "effort": "max"
       }
     },
-    "terra-reviewer": {
+    "sol-reviewer": {
       "adapter": "codex",
       "model": "gpt-6.1-sol",
       "family": "openai",

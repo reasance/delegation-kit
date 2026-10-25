@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Grok 4.6 through Grok Build CLI. Fails closed: only the roles the adapter
+# Run Grok 4.7 through Grok Build CLI. Fails closed: only the roles the adapter
 # supports, the requested model, target usage participant, effort, backend, and
 # scoped workspace sandbox can dispatch. A provider-surfaced content model that
 # differs from the requested one is a silent substitution and fails every run.
@@ -19,12 +19,12 @@ RUNNER_NAME="delegation-grok"
 # shellcheck source=bin/lib/delegation-runner-common.sh
 . "$ROOT/bin/lib/delegation-runner-common.sh"
 load_kit_env
-MODEL="${DELEGATION_REQUESTED_MODEL:-grok-4.6}"
+MODEL="${DELEGATION_REQUESTED_MODEL:-grok-4.7}"
 ADAPTER="grok-build-cli"
 ROLES="builder frontend-builder policy-annotation"
 RUNTIME_MODEL="$MODEL"
 USAGE_MODEL=""
-[ "$MODEL" != grok-4.6 ] || USAGE_MODEL="grok-4.6-build"
+[ "$MODEL" != grok-4.7 ] || USAGE_MODEL="grok-4.7-build"
 BACKEND="grok-build"
 EFFORTS='["high"]'
 CLI_COMPATIBILITY="capability-probed"
@@ -755,7 +755,7 @@ print_check() {
           max_turns:$max_turns,timeout_seconds:$timeout_seconds,
           isolated_home:true,plugins:false,mcp:false,terminal:false}}}'
   else
-    printf 'Grok 4.6: selected=%s roles=%s efforts=high\n' "$selected" "$(printf '%s' "$ROLES" | tr ' ' ',')"
+    printf '%s: selected=%s roles=%s efforts=high\n' "$MODEL" "$selected" "$(printf '%s' "$ROLES" | tr ' ' ',')"
     printf '  grok-build: %s (%s; model=%s; cli=%s from %s; effort=high; oauth=%s; sandbox=%s; max-turns=%s; timeout=%s)\n' \
       "$available" "$GROK_REASON" "$RUNTIME_MODEL" "$GROK_CLI_VERSION" \
       "$GROK_BIN_SOURCE" "$oauth_mode" "$SANDBOX_PROFILE" "$MAX_TURNS" "${TIMEOUT_SECONDS:-none}"

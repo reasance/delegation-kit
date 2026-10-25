@@ -244,9 +244,9 @@ refresh` writes a local catalog ([the router page](router.md)).
   agents the installer writes move to `claude-opus-5-5` on the next install,
   unless you edited them.
 - 0.32.0 replaced the shipped `kimi-k3` profile with `kimi-k3.1-pro` (model
-  `kimi-k3.1-pro`). A file made earlier keeps `kimi-k3`, and `delegation-kimi`
-  still runs it on K3. To move, rename the profile, and the pool entries and
-  routes that name it, and set `model` to `kimi-k3.1-pro`.
+  `kimi-k3.1-pro`). A file made earlier keeps `kimi-k3`; since K3 was
+  retired, `delegation-kimi` refuses it. To move, rename the profile, and the
+  pool entries and routes that name it, and set `model` to `kimi-k3.1-pro`.
 - 0.33.0 added the `minimax-m3.1-flash` profile to the preset. A file made
   earlier does not get it; copy it from the example under *Adding a model*,
   or from `config/presets.json`, and set `MINIMAX_API_KEY`.

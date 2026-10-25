@@ -54,7 +54,7 @@ cat >"$DATA/grok-cli/current/grok" <<'EOF'
 #!/usr/bin/env bash
 case "${1:-}" in
   --version) printf 'grok test-build\n' ;;
-  models) printf 'You are logged in with grok.com.\n  * grok-4.6 (default)\n' ;;
+  models) printf 'You are logged in with grok.com.\n  * grok-4.7 (default)\n' ;;
   inspect)
     case " $* " in
       *' --help '*) printf '%s\n' '--json' ;;
@@ -209,8 +209,8 @@ ok
 [ -f "$TMP/codex/agents/terra-builder.toml" ] && [ -f "$TMP/codex/terra-builder.config.toml" ] \
   || fail 'install did not retain Terra builder profiles'
 [ -f "$TMP/codex/agents/terra-reviewer.toml" ] && [ -f "$TMP/codex/terra-reviewer.config.toml" ] \
-  && grep -Fxq 'model = "gpt-5.6-terra"' "$TMP/codex/agents/terra-reviewer.toml" \
-  && grep -Fxq 'model = "gpt-5.6-terra"' "$TMP/codex/terra-reviewer.config.toml" \
+  && grep -Fxq 'model = "gpt-6.1-sol"' "$TMP/codex/agents/terra-reviewer.toml" \
+  && grep -Fxq 'model = "gpt-6.1-sol"' "$TMP/codex/terra-reviewer.config.toml" \
   && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/agents/terra-reviewer.toml" \
   && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/terra-reviewer.config.toml" \
   && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/agents/terra-reviewer.toml" \

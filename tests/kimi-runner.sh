@@ -156,9 +156,6 @@ case "${1:-}" in
       jq -n --arg effort "$effort" '
         {models:{"kimi-code/k3.1-pro":{
           provider:"managed:kimi-code",model:"k3.1-pro",
-          supportEfforts:["low","high","max"],defaultEffort:$effort},
-        "kimi-code/k3":{
-          provider:"managed:kimi-code",model:"k3",
           supportEfforts:["low","high","max"],defaultEffort:$effort}}}
       '
     else
@@ -432,11 +429,11 @@ jq -e '
   .backends.native.read_only_write_scope == "scratch"
 ' "$TMP/check.json" >/dev/null || fail "check contract mismatch"
 
-# A personal configuration that still names K3 keeps working; any other
-# Kimi Code model is refused before the probe.
+# K3 is retired: like any other Kimi Code model outside the list, it is
+# refused before the probe.
 DELEGATION_REQUESTED_MODEL=kimi-code/k3 run_kimi check --json >"$TMP/check-k3.json"
-jq -e '.model == "kimi-k3" and .selected_backend == "native"' "$TMP/check-k3.json" >/dev/null \
-  || fail "K3 is no longer accepted"
+jq -e '.selected_backend == "none"' "$TMP/check-k3.json" >/dev/null \
+  || fail "retired K3 is still accepted"
 DELEGATION_REQUESTED_MODEL=kimi-code/kimi-for-coding run_kimi check --json >"$TMP/check-unsupported.json"
 jq -e '
   .selected_backend == "none" and

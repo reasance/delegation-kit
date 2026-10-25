@@ -32,7 +32,7 @@ case "${1:-}" in
       printf 'List available models and exit\n'
       exit 0
     fi
-    printf 'You are logged in with grok.com.\n\nAvailable models:\n  * grok-4.6 (default)\n'
+    printf 'You are logged in with grok.com.\n\nAvailable models:\n  * grok-4.7 (default)\n'
     exit 0
     ;;
   inspect)
@@ -64,7 +64,7 @@ for argument in "$@"; do
   previous="$argument"
 done
 for required in \
-  '--model grok-4.6' '--reasoning-effort high' \
+  '--model grok-4.7' '--reasoning-effort high' \
   '--permission-mode dontAsk' \
   '--output-format json' '--no-memory' '--no-subagents' '--disable-web-search' \
   '--no-auto-update' '--max-turns 40' \
@@ -201,11 +201,11 @@ stop_reason=EndTurn
 [ "${GROK_FAKE_MODE:-success}" != max_turns ] || stop_reason=MaxTurns
 [ "${GROK_FAKE_MODE:-success}" != cancelled ] || stop_reason=Cancelled
 [ "${GROK_FAKE_MODE:-success}" != unexpected_stop ] || stop_reason=Unknown
-usage_model=grok-4.6-build
-[ "${GROK_FAKE_MODE:-success}" != model_mismatch ] || usage_model=grok-4.6-fallback-build
-content_model=grok-4.6
+usage_model=grok-4.7-build
+[ "${GROK_FAKE_MODE:-success}" != model_mismatch ] || usage_model=grok-4.7-fallback-build
+content_model=grok-4.7
 [ "${GROK_FAKE_MODE:-success}" != content_model_missing ] || content_model=
-[ "${GROK_FAKE_MODE:-success}" != content_model_mismatch ] || content_model=grok-4.6-fallback
+[ "${GROK_FAKE_MODE:-success}" != content_model_mismatch ] || content_model=grok-4.7-fallback
 multi_usage=false
 [ "${GROK_FAKE_MODE:-success}" != multi_usage ] || multi_usage=true
 jq -n --arg stop_reason "$stop_reason" --arg usage_model "$usage_model" \
@@ -284,7 +284,7 @@ start_grok_background_named() {
 
 run_grok check --json >"$TMP/check.json"
 jq -e '
-  .model == "grok-4.6" and
+  .model == "grok-4.7" and
   .runtime_cli_version == "user-build-a" and
   .runtime_cli_compatibility == "capability-probed" and
   .runtime_cli_source == "path" and
@@ -357,16 +357,16 @@ run_grok run --lane builder --prompt-file "$TMP/prompt.txt" \
 [ "$(cat "$TMP/results/builder.txt")" = PONG ] || fail "text extraction mismatch"
 ! grep -q SECRET_THOUGHT "$TMP/results/builder.txt" || fail "thought leaked into output"
 jq -e '
-  .model == "grok-4.6" and .runtime_model == "grok-4.6" and
-  .requested_model == "grok-4.6" and
-  .effective_content_model == "grok-4.6" and
+  .model == "grok-4.7" and .runtime_model == "grok-4.7" and
+  .requested_model == "grok-4.7" and
+  .effective_content_model == "grok-4.7" and
   .exact_model_identity_attested == true and
   .runtime_cli_version == "user-build-a" and
   .runtime_cli_compatibility == "capability-probed" and
-  .usage_model == "grok-4.6-build" and
+  .usage_model == "grok-4.7-build" and
   .target_usage_participant_present == true and
   (.usage_participants | length) == 1 and
-  .usage_participants[0].model == "grok-4.6-build" and .effort == "high" and
+  .usage_participants[0].model == "grok-4.7-build" and .effort == "high" and
   .lane == "builder" and .tokens.reasoning == 7 and
   .provider_cost_usd == 0.02 and .sandbox == "delegation-kit" and
   .permission_mode == "dontAsk" and .max_turns == 40 and
@@ -585,7 +585,7 @@ GROK_FAKE_MODE=multi_usage run_grok run --lane builder \
   --prompt-file "$TMP/prompt.txt" --output "$TMP/results/multi-usage.txt" \
   --workdir "$TMP/work"
 jq -e '
-  (.usage_participants | map(.model) | sort) == ["grok-4.6-build","safety-classifier"] and
+  (.usage_participants | map(.model) | sort) == ["grok-4.7-build","safety-classifier"] and
   .tokens.input == 105 and .tokens.output == 22 and
   .tokens.cache_read == 31 and .tokens.reasoning == 7 and .tokens.total == 165 and
   .provider_cost_usd == 0.021
@@ -624,7 +624,7 @@ run_grok run --lane policy-annotation --effort high --backend grok-build \
 [ "$(cat "$TMP/results/policy-annotation.txt")" = PONG ] \
   || fail "policy-annotation output mismatch"
 jq -e '
-  .lane == "policy-annotation" and .model == "grok-4.6" and
+  .lane == "policy-annotation" and .model == "grok-4.7" and
   .effort == "high" and .sandbox == "delegation-kit-read-only"
 ' "$TMP/results/policy-annotation.txt.metrics.json" >/dev/null \
   || fail "policy-annotation metrics mismatch"

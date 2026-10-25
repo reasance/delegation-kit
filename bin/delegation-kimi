@@ -30,7 +30,6 @@ NATIVE_MODEL="${DELEGATION_REQUESTED_MODEL:-kimi-code/k3.1-pro}"
 # Anything else fails the native probe.
 case "$NATIVE_MODEL" in
   kimi-code/k3.1-pro) KIT_MODEL="kimi-k3.1-pro"; DISPLAY_NAME="K3.1 Pro" ;;
-  kimi-code/k3) KIT_MODEL="kimi-k3"; DISPLAY_NAME="K3" ;;
   *) KIT_MODEL=""; DISPLAY_NAME="" ;;
 esac
 NATIVE_EFFORT="max"

@@ -39,7 +39,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "anthropic-pricing 2026-10-24"
+      "price_source": "anthropic-pricing 2026-10-25"
     },
     "claude-haiku-5-5": {
       "provider": "anthropic",
@@ -70,7 +70,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "anthropic-pricing 2026-10-24"
+      "price_source": "anthropic-pricing 2026-10-25"
     },
     "claude-opus-5-5": {
       "provider": "anthropic",
@@ -101,7 +101,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "anthropic-pricing 2026-10-24"
+      "price_source": "anthropic-pricing 2026-10-25"
     },
     "claude-sonnet-5-5": {
       "provider": "anthropic",
@@ -132,7 +132,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "anthropic-pricing 2026-10-24"
+      "price_source": "anthropic-pricing 2026-10-25"
     },
     "deepseek-flash": {
       "provider": "deepseek",
@@ -160,7 +160,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "deepseek-pricing 2026-10-24"
+      "price_source": "deepseek-pricing 2026-10-25"
     },
     "deepseek-v4-pro": {
       "provider": "deepseek",
@@ -188,7 +188,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "deepseek-pricing 2026-10-24"
+      "price_source": "deepseek-pricing 2026-10-25"
     },
     "gemini-3.8-flash": {
       "provider": "google",
@@ -217,7 +217,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "google-pricing 2026-10-24"
+      "price_source": "google-pricing 2026-10-25"
     },
     "gemini-4-argon": {
       "provider": "google",
@@ -244,7 +244,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "google-pricing 2026-10-24"
+      "price_source": "google-pricing 2026-10-25"
     },
     "glm-5.3": {
       "provider": "zai",
@@ -272,7 +272,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "zai-pricing 2026-10-24"
+      "price_source": "zai-pricing 2026-10-25"
     },
     "glm-5.3-flash": {
       "provider": "zai",
@@ -299,7 +299,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "zai-pricing 2026-10-24"
+      "price_source": "zai-pricing 2026-10-25"
     },
     "gpt-6-astra": {
       "provider": "openai",
@@ -330,7 +330,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "openai-pricing 2026-10-24"
+      "price_source": "openai-pricing 2026-10-25"
     },
     "gpt-6-luna": {
       "provider": "openai",
@@ -362,7 +362,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "openai-pricing 2026-10-24"
+      "price_source": "openai-pricing 2026-10-25"
     },
     "gpt-6.1-sol": {
       "provider": "openai",
@@ -393,7 +393,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "openai-pricing 2026-10-24"
+      "price_source": "openai-pricing 2026-10-25"
     },
     "grok-4.7": {
       "provider": "xai",
@@ -422,7 +422,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "xai-models 2026-10-24"
+      "price_source": "xai-models 2026-10-25"
     },
     "kimi-k3.1-pro": {
       "provider": "moonshot",
@@ -449,7 +449,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "kimi-pricing 2026-10-24"
+      "price_source": "kimi-pricing 2026-10-25"
     },
     "minimax-m3.1-flash": {
       "provider": "minimax",
@@ -476,7 +476,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "minimax-pricing 2026-10-24"
+      "price_source": "minimax-pricing 2026-10-25"
     },
     "mistral-large-4": {
       "provider": "mistral",
@@ -503,7 +503,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "mistral-pricing 2026-10-24"
+      "price_source": "mistral-large-4-card 2026-10-25"
     },
     "mistral-medium-3.5": {
       "provider": "mistral",
@@ -516,7 +516,7 @@
       "context": null,
       "json_mode": true,
       "evidence": null,
-      "price_source": "mistral-pricing 2026-10-24"
+      "price_source": "mistral-medium-3-5-card 2026-10-25"
     },
     "mistral-small-2603": {
       "provider": "mistral",
@@ -529,7 +529,7 @@
       "context": null,
       "json_mode": true,
       "evidence": null,
-      "price_source": "mistral-pricing 2026-10-24"
+      "price_source": "mistral-small-2603-card 2026-10-25"
     },
     "muse-spark-1.3": {
       "provider": "meta",
@@ -557,7 +557,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "meta-pricing 2026-10-24"
+      "price_source": "meta-pricing 2026-10-25"
     },
     "muse-spark-1.3-contributor": {
       "provider": "meta",
@@ -570,7 +570,7 @@
       "context": 1048576,
       "json_mode": true,
       "evidence": null,
-      "price_source": "meta-pricing 2026-10-24"
+      "price_source": "meta-pricing 2026-10-25"
     },
     "muse-wonder-1.0": {
       "provider": "meta",
@@ -598,7 +598,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "meta-pricing 2026-10-24"
+      "price_source": "meta-pricing 2026-10-25"
     },
     "muse-wonder-full-1.0": {
       "provider": "meta",
@@ -634,7 +634,7 @@
       "context": null,
       "json_mode": false,
       "evidence": null,
-      "price_source": "alibaba-pricing 2026-10-24"
+      "price_source": "alibaba-pricing 2026-10-25"
     },
     "qwen3.8-max": {
       "provider": "alibaba",
@@ -662,7 +662,7 @@
         "date": "2026-10-25",
         "via": "api"
       },
-      "price_source": "alibaba-pricing 2026-10-24"
+      "price_source": "alibaba-pricing 2026-10-25"
     }
   }
 }

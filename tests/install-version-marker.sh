@@ -54,7 +54,7 @@ cat >"$DATA/grok-cli/current/grok" <<'EOF'
 #!/usr/bin/env bash
 case "${1:-}" in
   --version) printf 'grok test-build\n' ;;
-  models) printf 'You are logged in with grok.com.\n  * grok-4.6 (default)\n' ;;
+  models) printf 'You are logged in with grok.com.\n  * grok-4.7 (default)\n' ;;
   inspect)
     case " $* " in
       *' --help '*) printf '%s\n' '--json' ;;
@@ -82,8 +82,23 @@ printf '%s\n' retired >"$TMP/claude/skills/orchestrate/references/retired.md"
 # Seed stale copies of the reviewer profiles: the installer must overwrite both.
 mkdir -p "$TMP/claude/agents" "$TMP/codex/agents"
 printf '%s\n' stale >"$TMP/claude/agents/opus-reviewer.md"
-printf '%s\n' stale >"$TMP/codex/agents/terra-reviewer.toml"
-printf '%s\n' stale >"$TMP/codex/terra-reviewer.config.toml"
+printf '%s\n' stale >"$TMP/codex/agents/sol-reviewer.toml"
+printf '%s\n' stale >"$TMP/codex/sol-reviewer.config.toml"
+# The Sol profiles were named terra-*: an unedited managed copy under the old
+# name goes, an edited one stays.
+printf '%s\n' 'name = "terra-builder"' >"$TMP/codex/agents/terra-builder.toml"
+printf '%s\n' edited >"$TMP/codex/terra-reviewer.config.toml"
+# The installer keys its manifest by Python's normalized path.
+python3 - "$TMP/codex" "$DATA/managed-profile-hashes.json" <<'PY'
+import hashlib, json, sys
+from pathlib import Path
+codex, manifest = Path(sys.argv[1]), Path(sys.argv[2])
+builder = codex / 'agents' / 'terra-builder.toml'
+manifest.write_text(json.dumps({
+    str(builder): hashlib.sha256(builder.read_bytes()).hexdigest(),
+    str(codex / 'terra-reviewer.config.toml'): 'recorded-before-the-edit',
+}))
+PY
 
 # Install into fully isolated homes; never touch the real ones.
 env CLAUDE_HOME="$TMP/claude" CODEX_HOME="$TMP/codex" \
@@ -206,16 +221,20 @@ ok
   && grep -Fxq 'tools: Read, Grep, Glob' "$TMP/claude/agents/sonnet-reviewer.md" \
   && grep -Fq 'configured review policy' "$TMP/claude/agents/sonnet-reviewer.md" \
   || fail 'install did not refresh the Sonnet tool-read-only cross-family reviewer'
-[ -f "$TMP/codex/agents/terra-builder.toml" ] && [ -f "$TMP/codex/terra-builder.config.toml" ] \
-  || fail 'install did not retain Terra builder profiles'
-[ -f "$TMP/codex/agents/terra-reviewer.toml" ] && [ -f "$TMP/codex/terra-reviewer.config.toml" ] \
-  && grep -Fxq 'model = "gpt-5.6-terra"' "$TMP/codex/agents/terra-reviewer.toml" \
-  && grep -Fxq 'model = "gpt-5.6-terra"' "$TMP/codex/terra-reviewer.config.toml" \
-  && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/agents/terra-reviewer.toml" \
-  && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/terra-reviewer.config.toml" \
-  && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/agents/terra-reviewer.toml" \
-  && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/terra-reviewer.config.toml" \
-  || fail 'install did not include the Terra max read-only reviewer profiles'
+[ -f "$TMP/codex/agents/sol-builder.toml" ] && [ -f "$TMP/codex/sol-builder.config.toml" ] \
+  || fail 'install did not retain Sol builder profiles'
+[ -f "$TMP/codex/agents/sol-reviewer.toml" ] && [ -f "$TMP/codex/sol-reviewer.config.toml" ] \
+  && grep -Fxq 'model = "gpt-6.1-sol"' "$TMP/codex/agents/sol-reviewer.toml" \
+  && grep -Fxq 'model = "gpt-6.1-sol"' "$TMP/codex/sol-reviewer.config.toml" \
+  && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/agents/sol-reviewer.toml" \
+  && grep -Fxq 'model_reasoning_effort = "max"' "$TMP/codex/sol-reviewer.config.toml" \
+  && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/agents/sol-reviewer.toml" \
+  && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/sol-reviewer.config.toml" \
+  || fail 'install did not include the Sol max read-only reviewer profiles'
+[ ! -e "$TMP/codex/agents/terra-builder.toml" ] \
+  || fail 'install kept the unedited terra-builder profile under its old name'
+[ "$(cat "$TMP/codex/terra-reviewer.config.toml")" = edited ] \
+  || fail 'install removed an edited terra-reviewer profile'
 [ -f "$TMP/codex/agents/astra-reviewer.toml" ] && [ -f "$TMP/codex/astra-reviewer.config.toml" ] \
   && grep -Fxq 'model = "gpt-6-astra"' "$TMP/codex/agents/astra-reviewer.toml" \
   && grep -Fxq 'model = "gpt-6-astra"' "$TMP/codex/astra-reviewer.config.toml" \

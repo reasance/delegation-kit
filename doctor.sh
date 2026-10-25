@@ -10,7 +10,7 @@
 #   --ping-glm does a separate paid GLM-5.3-Flash/max ping through its clerk role.
 #   --ping-kimi does a separate Kimi K3.1 Pro ping through its scout role.
 #   --ping-muse does a Muse Spark 1.3 ping on the Muse Code subscription (scout).
-#   --ping-grok does a paid Grok 4.6 ping through its builder role.
+#   --ping-grok does a paid Grok 4.7 ping through its builder role.
 # Env overrides (for testing): CLAUDE_HOME (default ~/.claude), CODEX_HOME (~/.codex)
 set -uo pipefail
 shopt -s nullglob   # unmatched globs vanish instead of staying literal
@@ -286,18 +286,18 @@ done
 if [ "$total" = 0 ]; then bad "no source profiles in $KIT/codex/profiles"
 elif [ "$miss" = 0 ]; then ok "all $total ephemeral -p profiles installed"
 else bad "$miss/$total ephemeral profile(s) missing from $CODEX_HOME/ — run ./install.sh"; fi
-if [ -f "$CODEX_HOME/agents/terra-reviewer.toml" ] \
-    && [ -f "$CODEX_HOME/terra-reviewer.config.toml" ] \
-    && grep -Fxq 'model = "gpt-5.6-terra"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'model = "gpt-5.6-terra"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/agents/terra-reviewer.toml" \
-    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/terra-reviewer.config.toml" \
-    && grep -Fq 'configured review policy' "$CODEX_HOME/agents/terra-reviewer.toml"; then
-  ok "terra-reviewer pinned to gpt-5.6-terra/max, read-only, and configured review policy"
+if [ -f "$CODEX_HOME/agents/sol-reviewer.toml" ] \
+    && [ -f "$CODEX_HOME/sol-reviewer.config.toml" ] \
+    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'model = "gpt-6.1-sol"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'model_reasoning_effort = "max"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/agents/sol-reviewer.toml" \
+    && grep -Fxq 'sandbox_mode = "read-only"' "$CODEX_HOME/sol-reviewer.config.toml" \
+    && grep -Fq 'configured review policy' "$CODEX_HOME/agents/sol-reviewer.toml"; then
+  ok "sol-reviewer pinned to gpt-6.1-sol/max, read-only, and configured review policy"
 else
-  bad "terra-reviewer missing, stale, or not gpt-5.6-terra/max, read-only, under the configured review policy — re-run ./install.sh"
+  bad "sol-reviewer missing, stale, or not gpt-6.1-sol/max, read-only, under the configured review policy — re-run ./install.sh"
 fi
 if [ -f "$CODEX_HOME/agents/astra-reviewer.toml" ] \
     && [ -f "$CODEX_HOME/astra-reviewer.config.toml" ] \
@@ -626,14 +626,14 @@ else
   warn "delegation-muse not installed — re-run ./install.sh"
 fi
 
-# ---- optional Grok 4.6 builder executor ----
+# ---- optional Grok 4.7 builder executor ----
 hdr "Grok executor (grok-build-cli)"
 if ! have jq; then
   warn "jq not on PATH — delegation-grok cannot run"
 elif have delegation-grok; then
   grok_check="$(delegation-grok check --json 2>/dev/null || true)"
   if [ -n "$grok_check" ] && printf '%s' "$grok_check" | jq -e '
-      .model == "grok-4.6" and
+      .model == "grok-4.7" and
       .runtime_cli_compatibility == "capability-probed" and
       (.runtime_cli_version | type == "string" and length > 0) and
       .backends["grok-build"].sandbox == "delegation-kit" and
@@ -655,7 +655,7 @@ elif have delegation-grok; then
       .backends["grok-build"].max_turns == 40 and
       (.backends["grok-build"].timeout_seconds == null or (.backends["grok-build"].timeout_seconds | type) == "number")
     ' >/dev/null 2>&1; then
-    ok "delegation-grok installed for grok-4.6/high with capability-probed runtime controls"
+    ok "delegation-grok installed for grok-4.7/high with capability-probed runtime controls"
     grok_selected="$(printf '%s' "$grok_check" | jq -r '.selected_backend')"
     if [ "$grok_selected" = none ]; then
       info "Grok Build runtime unavailable: $(printf '%s' "$grok_check" | jq -r '.backends["grok-build"].reason')"
@@ -667,7 +667,7 @@ elif have delegation-grok; then
     fi
     info "Grok adapter roles: $(printf '%s' "$grok_check" | jq -r '.roles | join(",")')"
   else
-    bad "delegation-grok check failed or is not capability-compatible with grok-4.6/high"
+    bad "delegation-grok check failed or is not capability-compatible with grok-4.7/high"
   fi
 else
   warn "delegation-grok not installed — re-run ./install.sh"
@@ -701,7 +701,7 @@ if [ -f "$cfg" ]; then
   # `features = { multi_agent = true }`; strip comments, then require an explicit = true
   ma=false; sed 's/#.*//' "$cfg" | grep -Eq 'multi_agent[[:space:]]*=[[:space:]]*true' && ma=true
   [ "$ma" = true ] && ok "multi_agent = true — native Codex delegation can fire" \
-    || warn "multi_agent is not true — Codex cannot spawn its native luna/terra/astra subagents (the cross-tool bridge still works). Merge codex/config.snippet.toml"
+    || warn "multi_agent is not true — Codex cannot spawn its native luna/sol/astra subagents (the cross-tool bridge still works). Merge codex/config.snippet.toml"
   # sandbox_mode is a root-level key: read only the region before the first [table] so a
   # [profiles.*] override isn't mistaken for the effective posture
   sbx="$(sed '/^[[:space:]]*\[/q' "$cfg" | grep -E '^[[:space:]]*sandbox_mode[[:space:]]*=' | head -1 | sed 's/#.*//; s/.*=[[:space:]]*//; s/"//g; s/[[:space:]]*$//')"
@@ -800,7 +800,7 @@ if [ "$DO_MUSE_PING" = 1 ]; then
 fi
 
 if [ "$DO_GROK_PING" = 1 ]; then
-  hdr "Grok 4.6 live ping (--ping-grok)"
+  hdr "Grok 4.7 live ping (--ping-grok)"
   if ! have delegation-grok; then
     bad "Grok ping unavailable — delegation-grok is not installed"
   else
@@ -815,9 +815,9 @@ if [ "$DO_GROK_PING" = 1 ]; then
           --effort auto --backend auto --prompt-file "$ping_dir/prompt.txt" \
           --output "$ping_dir/results/out.txt" --workdir "$ping_dir/work" \
           >/dev/null 2>&1 && grep -Fxq PONG "$ping_dir/results/out.txt"; then
-        ok "Grok 4.6 builder ping returned PONG"
+        ok "Grok 4.7 builder ping returned PONG"
       else
-        bad "Grok 4.6 ping failed"
+        bad "Grok 4.7 ping failed"
       fi
       rm -rf "$ping_dir"
     fi

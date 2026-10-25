@@ -37,7 +37,9 @@ echo "  - removed the 6 subagent profiles and the model-routing, orchestrate and
 strip_guarded "$CLAUDE_HOME/CLAUDE.md"
 
 echo "Codex -> $CODEX_HOME"
-for a in luna-clerk terra-builder terra-reviewer astra-reviewer astra-judge; do
+# terra-builder and terra-reviewer are the earlier names of sol-builder and
+# sol-reviewer; an older install may still have them.
+for a in luna-clerk sol-builder sol-reviewer terra-builder terra-reviewer astra-reviewer astra-judge; do
   rm -f "$CODEX_HOME/agents/$a.toml" "$CODEX_HOME/$a.config.toml"
 done
 rm -rf "$CODEX_HOME/skills/glm-executor" "$CODEX_HOME/skills/gemini-executor" \

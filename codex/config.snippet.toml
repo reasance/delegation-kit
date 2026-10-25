@@ -4,10 +4,10 @@
 # are load-bearing personal choices, and a bad merge is disruptive. Review and add
 # what you want.
 
-# Lead model + effort for a normal Codex session. The author uses gpt-5.6-sol at
+# Lead model + effort for a normal Codex session. The author uses gpt-6.1-sol at
 # medium (a capable-but-not-top lead), raising effort only in plan mode. Swap for
 # your own default.
-model = "gpt-5.6-sol"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
 

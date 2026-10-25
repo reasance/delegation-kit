@@ -68,6 +68,28 @@ os.replace(temporary, manifest)
 PYMANAGED
 }
 
+# A profile the kit no longer ships goes, unless the user edited it.
+remove_managed() {
+  python3 - "$1" "$DATA_HOME" <<'PYREMOVE'
+import hashlib, json, os, sys, tempfile
+from pathlib import Path
+target, data = map(Path, sys.argv[1:])
+manifest = data / 'managed-profile-hashes.json'
+hashes = json.loads(manifest.read_text()) if manifest.exists() else {}
+key = str(target)
+if not target.exists() or key not in hashes:
+    sys.exit(0)
+if hashlib.sha256(target.read_bytes()).hexdigest() != hashes[key]:
+    print('  + preserved edited profile: ' + key)
+    sys.exit(0)
+target.unlink()
+del hashes[key]
+fd, temporary = tempfile.mkstemp(dir=data, prefix='.managed-profile-')
+with os.fdopen(fd, 'w') as stream: json.dump(hashes, stream)
+os.replace(temporary, manifest)
+PYREMOVE
+}
+
 # The personal configuration is created from the shipped preset only when
 # absent; an existing file is never overwritten.
 "$KIT/bin/delegation-config" init
@@ -378,6 +400,11 @@ if [ "$do_codex" = 1 ]; then
   echo "  + 5 native subagent profiles -> $CODEX_HOME/agents/"
   for profile in "$KIT"/codex/profiles/*.config.toml; do copy_managed "$profile" "$CODEX_HOME/$(basename "$profile")"; done
   echo "  + 5 ephemeral -p profiles -> $CODEX_HOME/"
+  # sol-builder and sol-reviewer were terra-builder and terra-reviewer.
+  for legacy in terra-builder terra-reviewer; do
+    remove_managed "$CODEX_HOME/agents/$legacy.toml"
+    remove_managed "$CODEX_HOME/$legacy.config.toml"
+  done
   for skill in $EXECUTOR_SKILLS; do install_skill "$skill" "$CODEX_HOME/skills"; done
   echo "  + the seven executor skills -> $CODEX_HOME/skills/"
   append_guarded "$CODEX_HOME/AGENTS.md" "$(cat "$KIT/codex/AGENTS.md")"

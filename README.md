@@ -150,13 +150,16 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.34.1
+## Current release: 0.35.0
 
-Version 0.34.1 follows the repository's move to the `reasance`
-organization: the npm wrapper now clones `github.com/reasance/delegation-kit`,
-and the package and plugin manifests link there. Nothing else changed. 0.34.0
-added Meta's Muse models, on your Muse Code subscription through a new
-runner, `delegation-muse`, or on the Meta Model API with `META_API_KEY`.
+Version 0.35.0 moves every preset off retired models: `luna-clerk` runs
+`gpt-6-luna`, the Sonnet profiles `claude-sonnet-5-5`, the Fable profiles
+`claude-fable-5-1`, `grok-build` `grok-4.7`, and `terra-builder` and
+`terra-reviewer` become `sol-builder` and `sol-reviewer` on `gpt-6.1-sol`.
+`delegation-kimi` refuses the retired K3, and `openai-compatible` sends
+`max_completion_tokens` to Meta's Model API. A personal configuration keeps
+its old profiles until you edit it; see
+[`docs/user-configuration.md`](./docs/user-configuration.md).
 
 Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
 

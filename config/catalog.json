@@ -507,7 +507,7 @@
     },
     "mistral-medium-3.5": {
       "provider": "mistral",
-      "tier": null,
+      "tier": "small",
       "code": true,
       "price": {
         "in": 1.5,
@@ -515,7 +515,21 @@
       },
       "context": null,
       "json_mode": true,
-      "evidence": null,
+      "evidence": {
+        "source": "artificialanalysis",
+        "name": "Mistral Medium 3.5",
+        "aa_id": "dd059b25-d82a-4ead-82a4-4adceaaec48b",
+        "match": "slug",
+        "index": 14.2,
+        "variant": "default",
+        "variants": {
+          "default": 14.2
+        },
+        "coding_index": 46.9,
+        "math_index": null,
+        "date": "2026-10-25",
+        "via": "api"
+      },
       "price_source": "mistral-medium-3-5-card 2026-10-25"
     },
     "mistral-small-2603": {

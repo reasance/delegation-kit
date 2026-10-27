@@ -422,6 +422,14 @@ def validate(c):
             p["adapter"], set()
         ):
             raise ValueError("unsupported effort")
+        if (
+            p["adapter"] == "codex"
+            and p["model"] == "gpt-6.1-terra"
+            and params.get("effort") in {"none", "minimal"}
+        ):
+            raise ValueError(
+                "gpt-6.1-terra Codex effort must be low|medium|high|xhigh|max"
+            )
         # Whether Meta may train on what a Muse Code run sends; off unless set.
         if "contributor_mode" in params and params["contributor_mode"] not in {
             "on",

@@ -150,16 +150,14 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.35.0
+## Current release: 0.35.1
 
-Version 0.35.0 moves every preset off retired models: `luna-clerk` runs
-`gpt-6-luna`, the Sonnet profiles `claude-sonnet-5-5`, the Fable profiles
-`claude-fable-5-1`, `grok-build` `grok-4.7`, and `terra-builder` and
-`terra-reviewer` become `sol-builder` and `sol-reviewer` on `gpt-6.1-sol`.
-`delegation-kimi` refuses the retired K3, and `openai-compatible` sends
-`max_completion_tokens` to Meta's Model API. A personal configuration keeps
-its old profiles until you edit it; see
-[`docs/user-configuration.md`](./docs/user-configuration.md).
+Version 0.35.1 adds `gpt-6.1-terra` to the catalog with verified prices and
+per-effort Artificial Analysis results. Select it with a personal Codex
+profile; shipped presets stay unchanged. The native Codex adapter rejects
+Terra's unsupported `none` and `minimal` efforts before dispatch. See
+[`docs/user-configuration.md`](./docs/user-configuration.md) for the profile
+and [`docs/compatibility.md`](./docs/compatibility.md) for the release checks.
 
 Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
 

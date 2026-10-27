@@ -1,12 +1,12 @@
 {
-  "catalog_version": "2026-10-25",
+  "catalog_version": "2026-10-27",
   "tiering": {
     "rule": "index-bands-v1",
     "frontier_within": 8,
     "mid_within": 20,
     "top_index": 57.6,
     "source": "artificialanalysis",
-    "date": "2026-10-25",
+    "date": "2026-10-27",
     "attribution": "https://artificialanalysis.ai/"
   },
   "models": {
@@ -394,6 +394,38 @@
         "via": "api"
       },
       "price_source": "openai-pricing 2026-10-25"
+    },
+    "gpt-6.1-terra": {
+      "provider": "openai",
+      "tier": "mid",
+      "code": true,
+      "price": {
+        "in": 1.0,
+        "out": 5.0
+      },
+      "context": 1050000,
+      "json_mode": true,
+      "evidence": {
+        "source": "artificialanalysis",
+        "name": "GPT-6.1 Terra",
+        "aa_id": "b0c462cf-f2d0-4126-9434-28db9502219f",
+        "match": "slug",
+        "index": 48.1,
+        "variant": "max",
+        "variants": {
+          "max": 48.1,
+          "xhigh": 45.4,
+          "high": 43.9,
+          "medium": 41.3,
+          "low": 36.2,
+          "non-reasoning": 33.5
+        },
+        "coding_index": null,
+        "math_index": null,
+        "date": "2026-10-27",
+        "via": "api"
+      },
+      "price_source": "openai-pricing 2026-10-27"
     },
     "grok-4.7": {
       "provider": "xai",

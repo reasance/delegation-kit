@@ -321,20 +321,23 @@ else:
             path.chmod(0o700)
         self.env["PATH"] = str(tools) + os.pathsep + self.env["PATH"]
         self.env["DK_CAPTURE"] = str(self.base / "capture")
-        for adapter in ["codex", "claude-code"]:
-            with self.subTest(adapter=adapter):
+        for adapter, model in [
+            ("codex", "unbenchmarked-native"),
+            ("claude-code", "unbenchmarked-native"),
+            ("codex", "gpt-6.1-terra"),
+        ]:
+            with self.subTest(adapter=adapter, model=model):
                 self.config["profiles"]["new-model"] = {
                     "adapter": adapter,
-                    "model": "unbenchmarked-native",
+                    "model": model,
                     "roles": ["builder"],
                     "parameters": {"effort": "high"},
                 }
+                self.env["DK_REPORTED"] = model
                 self.save()
                 self.run_profile()
                 args = json.loads((self.base / "capture").read_text())
-                self.assertEqual(
-                    args[args.index("--model") + 1], "unbenchmarked-native"
-                )
+                self.assertEqual(args[args.index("--model") + 1], model)
                 if adapter == "codex":
                     self.assertEqual(args[args.index("--sandbox") + 1], "read-only")
                 else:
@@ -367,6 +370,23 @@ else:
                 self.env.pop("DK_SLEEP")
                 del self.config["profiles"]["new-model"]["parameters"]["timeout"]
         self.assertEqual(Handler.requests, [])
+
+    def test_terra_codex_effort_validation(self):
+        self.config["profiles"]["new-model"] = {
+            "adapter": "codex",
+            "model": "gpt-6.1-terra",
+            "roles": ["builder"],
+            "parameters": {},
+        }
+        for effort in ("low", "medium", "high", "xhigh", "max", "none", "minimal"):
+            with self.subTest(effort=effort):
+                self.config["profiles"]["new-model"]["parameters"]["effort"] = effort
+                self.save()
+                self.command(
+                    "delegation-config",
+                    "validate",
+                    rc=65 if effort in {"none", "minimal"} else 0,
+                )
 
     def test_openai_compatible_effort_only_when_declared(self):
         self.run_profile()

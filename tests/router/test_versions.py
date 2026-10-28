@@ -37,6 +37,10 @@ class EvidenceVersions(unittest.TestCase):
         self.assertIsNone(result["tier"])
         profile["parameters"]["effort"] = "max"
         self.assertEqual(profile_meta("terra", profile, cat)["score"], 51)
+        saved = row["evidence"].pop("variants")
+        self.assertIsNone(profile_meta("terra", profile, cat)["score"])
+        self.assertIsNone(profile_meta("terra", profile, cat)["tier"])
+        row["evidence"]["variants"] = saved
         row["evidence"]["index_version"] = "4.3.2"
         self.assertIsNone(profile_meta("terra", profile, cat)["score"])
 

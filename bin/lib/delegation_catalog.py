@@ -176,6 +176,8 @@ def score_for_effort(row, effort):
         return variants[effort]
     if variants:
         return None
+    if evidence.get("index_version") == INDEX_VERSION:
+        return None
     return evidence.get("index")
 
 
@@ -189,6 +191,8 @@ def tier_for_effort(row, effort, tiering):
     if variants:
         score = score_for_effort(row, effort)
         return place(score, tiering) if score is not None and tiering else None
+    if evidence.get("index_version") == INDEX_VERSION:
+        return None
     return row.get("tier")
 
 

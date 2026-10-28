@@ -1,7 +1,7 @@
 """The model catalog: which rung each model sits on, and why.
 
 The shipped `config/catalog.json` places every model it can from the
-Artificial Analysis Intelligence Index (0–100, a composite of public
+Artificial Analysis Intelligence Index (0–100, a composite of versioned
 evaluations, with coding and math sub-indexes and list prices) through one
 published rule, `index-bands-v1`: frontier within N points of the best model
 of the day, mid within M, small below. Every row records its evidence; a
@@ -46,6 +46,8 @@ AA_KEY_VAR = "AA_API_KEY"
 
 
 RULE = "index-bands-v1"
+INDEX_VERSION = "5.0"
+VERSION_SOURCE = "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
 
 
 BANDS = {"frontier_within": 8, "mid_within": 20}
@@ -74,6 +76,13 @@ def catalog():
         if _catalog_shape_ok(local) and str(local.get("catalog_version", "")) >= str(
             shipped["catalog_version"]
         ):
+            expected = (shipped.get("tiering") or {}).get("index_version")
+            observed = (local.get("tiering") or {}).get("index_version")
+            if expected and observed != expected:
+                shipped["ignored_local_catalog"] = (
+                    "incompatible or unversioned index evidence"
+                )
+                return shipped
             merged = dict(shipped)
             merged["models"] = {**shipped["models"], **local["models"]}
             merged["catalog_version"] = local["catalog_version"]
@@ -165,6 +174,10 @@ def score_for_effort(row, effort):
     variants = evidence.get("variants") or {}
     if effort and effort in variants:
         return variants[effort]
+    if variants:
+        return None
+    if evidence.get("index_version") == INDEX_VERSION:
+        return None
     return evidence.get("index")
 
 
@@ -175,6 +188,11 @@ def tier_for_effort(row, effort, tiering):
     variants = evidence.get("variants") or {}
     if effort and effort in variants and tiering:
         return place(variants[effort], tiering)
+    if variants:
+        score = score_for_effort(row, effort)
+        return place(score, tiering) if score is not None and tiering else None
+    if evidence.get("index_version") == INDEX_VERSION:
+        return None
     return row.get("tier")
 
 
@@ -188,9 +206,15 @@ def profile_meta(key, p, cat=None):
     effort = p.get("parameters", {}).get("effort")
     evidence = base.get("evidence")
     tiering = cat.get("tiering")
+    expected = (tiering or {}).get("index_version")
+    incompatible = bool(
+        expected and evidence and evidence.get("index_version") != expected
+    )
     if "tier" in p:
         tier, tier_source = p["tier"], "profile"
         score = tier_floor(tier, tiering)
+    elif incompatible:
+        tier, score, tier_source = None, None, "incompatible-benchmark-version"
     elif evidence:
         tier = tier_for_effort(base, effort, tiering)
         tier_source = "%s:%s" % (evidence["source"], evidence["date"])
@@ -276,7 +300,7 @@ def group(rows):
     families = {}
     for row in rows:
         parsed = parse_row(row)
-        if not parsed["name"] or parsed["index"] is None:
+        if not parsed["name"]:
             continue
         key = normalize_name(parsed["family"] or parsed["base"])
         families.setdefault(
@@ -301,25 +325,35 @@ def match(model_id, aa_name, families):
 
 
 def best_variant(variants):
-    """The strongest reasoning setting a family was measured at."""
+    """The setting with the highest measured score, not necessarily effort."""
     order = {name: i for i, name in enumerate(EFFORT_ORDER)}
-    return max(variants.items(), key=lambda kv: (order.get(kv[0], -1), kv[1]["index"]))
+    measured = [(v, p) for v, p in variants.items() if p["index"] is not None]
+    return (
+        max(measured, key=lambda kv: (kv[1]["index"], -order.get(kv[0], -1)))
+        if measured
+        else (None, None)
+    )
 
 
 def refresh(catalog, rows, today):
     """A new catalog from the shipped one and the Artificial Analysis rows:
     matched models get evidence, prices they lacked and a rung from the rule;
-    unmatched models keep what they had and are listed."""
+    unmatched measured models lose their score; manual facts are retained."""
     families = group(rows)
     if not families:
         raise ValueError("no usable model rows in the Artificial Analysis response")
-    top = max(
+    measured = [
         parsed["index"]
         for family in families.values()
         for parsed in family["variants"].values()
-    )
+        if parsed["index"] is not None
+    ]
+    if not measured:
+        raise ValueError("no usable model rows in the Artificial Analysis response")
+    top = max(measured)
     tiering = {
         "rule": RULE,
+        "index_version": INDEX_VERSION,
         **BANDS,
         "top_index": top,
         "source": "artificialanalysis",
@@ -335,16 +369,33 @@ def refresh(catalog, rows, today):
         new = {
             k: v
             for k, v in old.items()
-            if k not in ("evidence", "price_source", "price_date")
+            if k != "evidence"
+            and not (from_board and k in ("price_source", "price_date"))
             and not (k == "price" and from_board)
         }
-        key, how = match(model_id, old.get("aa_name"), families)
+        key, how = match(old.get("aa_slug") or model_id, old.get("aa_name"), families)
         if key is None:
             new["evidence"] = None
+            if old.get("evidence") or (catalog.get("tiering") or {}).get(
+                "index_version"
+            ):
+                new["tier"] = None
             unmatched.append(model_id)
             models[model_id] = new
             continue
         variant_name, best = best_variant(families[key]["variants"])
+        if best is None:
+            new["evidence"] = {
+                "source": "artificialanalysis",
+                "date": today,
+                "index_version": INDEX_VERSION,
+                "availability": "unmeasured",
+                "index": None,
+                "variants": {},
+            }
+            new["tier"] = None
+            models[model_id] = new
+            continue
         new["evidence"] = {
             "source": "artificialanalysis",
             "name": best["base"],
@@ -353,18 +404,24 @@ def refresh(catalog, rows, today):
             "index": best["index"],
             "variant": variant_name,
             "variants": {
-                name: p["index"] for name, p in families[key]["variants"].items()
+                name: p["index"]
+                for name, p in families[key]["variants"].items()
+                if p["index"] is not None
             },
-            "coding_index": best["coding_index"],
-            "math_index": best["math_index"],
+            "coding_index": None,
+            "math_index": None,
             "date": today,
             "via": "api",
+            "index_version": INDEX_VERSION,
+            "availability": "measured",
+            "version_source": VERSION_SOURCE,
         }
         new["tier"] = place(best["index"], tiering)
         if (
             new.get("price") is None
             and best["price_in"] is not None
             and best["price_out"] is not None
+            and best["price_in"] + best["price_out"] > 0
         ):
             new["price"] = {"in": best["price_in"], "out": best["price_out"]}
             new["price_source"] = "artificialanalysis " + today
@@ -433,16 +490,24 @@ def describe(cat):
     rows = []
     for model_id, row in sorted(cat["models"].items()):
         evidence = row.get("evidence")
+        incompatible = bool(
+            tiering.get("index_version")
+            and evidence
+            and evidence.get("index_version") != tiering["index_version"]
+        )
         rows.append(
             {
                 "model": model_id,
-                "tier": row.get("tier"),
+                "tier": None if incompatible else row.get("tier"),
                 "tier_source": (
                     "%s:%s" % (evidence["source"], evidence["date"])
                     if evidence
                     else "hand"
                 ),
-                "index": evidence.get("index") if evidence else None,
+                "index": evidence.get("index")
+                if evidence and not incompatible
+                else None,
+                "index_version": evidence.get("index_version") if evidence else None,
                 "variant": evidence.get("variant") if evidence else None,
                 "code": row.get("code"),
                 "price": row.get("price"),
@@ -453,6 +518,7 @@ def describe(cat):
         "catalog_version": cat["catalog_version"],
         "catalog_source": cat.get("catalog_source", "shipped"),
         "catalog_file": cat.get("catalog_file"),
+        "ignored_local_catalog": cat.get("ignored_local_catalog"),
         "tiering": tiering,
         "models": rows,
         "with_evidence": sum(1 for r in rows if r["tier_source"] != "hand"),
@@ -473,6 +539,10 @@ def render_show(report):
         % (report["catalog_version"], report["catalog_source"], report["catalog_file"])
     ]
     t = report["tiering"]
+    if report.get("ignored_local_catalog"):
+        lines.append("  local catalog ignored: " + report["ignored_local_catalog"])
+    if t.get("index_version"):
+        lines.append("  Intelligence Index v" + t["index_version"])
     if t:
         lines.append(
             "  ladder: %s — frontier within %s of the best (%s), mid within %s; %s, %s"

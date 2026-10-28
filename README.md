@@ -150,14 +150,13 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.35.1
+## Current release: 0.36.0
 
-Version 0.35.1 adds `gpt-6.1-terra` to the catalog with verified prices and
-per-effort Artificial Analysis results. Select it with a personal Codex
-profile; shipped presets stay unchanged. The native Codex adapter rejects
-Terra's unsupported `none` and `minimal` efforts before dispatch. See
-[`docs/user-configuration.md`](./docs/user-configuration.md) for the profile
-and [`docs/compatibility.md`](./docs/compatibility.md) for the release checks.
+Version 0.36.0 migrates the catalog and routing evidence to Artificial Analysis
+Intelligence Index v5.0. New Terra builder and Opus judge presets are available;
+Sonnet routine review uses high effort. Unmeasured efforts and incompatible
+local catalog versions no longer inherit a benchmark score. Existing personal
+configurations and router pools remain user-owned.
 
 Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
 

@@ -217,7 +217,7 @@ ok
   || fail 'install did not refresh opus-reviewer at max with the cross-family rule'
 [ -f "$TMP/claude/agents/sonnet-reviewer.md" ] \
   && grep -Fxq 'model: sonnet' "$TMP/claude/agents/sonnet-reviewer.md" \
-  && grep -Fxq 'effort: medium' "$TMP/claude/agents/sonnet-reviewer.md" \
+  && grep -Fxq 'effort: high' "$TMP/claude/agents/sonnet-reviewer.md" \
   && grep -Fxq 'tools: Read, Grep, Glob' "$TMP/claude/agents/sonnet-reviewer.md" \
   && grep -Fq 'configured review policy' "$TMP/claude/agents/sonnet-reviewer.md" \
   || fail 'install did not refresh the Sonnet tool-read-only cross-family reviewer'
@@ -231,8 +231,13 @@ ok
   && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/agents/sol-reviewer.toml" \
   && grep -Fxq 'sandbox_mode = "read-only"' "$TMP/codex/sol-reviewer.config.toml" \
   || fail 'install did not include the Sol max read-only reviewer profiles'
-[ ! -e "$TMP/codex/agents/terra-builder.toml" ] \
-  || fail 'install kept the unedited terra-builder profile under its old name'
+[ -f "$TMP/codex/agents/terra-builder.toml" ] \
+  && grep -Fxq 'model = "gpt-6.1-terra"' "$TMP/codex/agents/terra-builder.toml" \
+  && grep -Fxq 'model_reasoning_effort = "high"' "$TMP/codex/agents/terra-builder.toml" \
+  && [ -f "$TMP/codex/terra-builder.config.toml" ] \
+  && [ -f "$TMP/codex/agents/terra-builder-max.toml" ] \
+  && [ -f "$TMP/claude/agents/opus-judge.md" ] \
+  || fail 'install removed or mis-pinned a reintroduced Terra or new Opus profile'
 [ "$(cat "$TMP/codex/terra-reviewer.config.toml")" = edited ] \
   || fail 'install removed an edited terra-reviewer profile'
 [ -f "$TMP/codex/agents/astra-reviewer.toml" ] && [ -f "$TMP/codex/astra-reviewer.config.toml" ] \
@@ -330,6 +335,13 @@ env CLAUDE_HOME="$TMP/claude2" CODEX_HOME="$TMP/codex2" \
   || fail 'uninstall left the patch verifier on the bin path'
 [ ! -e "$TMP/data2/config/external-patch-policy.json" ] \
   || fail 'uninstall left the installed patch policy behind'
+for profile in terra-builder terra-builder-max; do
+  [ ! -e "$TMP/codex2/agents/$profile.toml" ] \
+    && [ ! -e "$TMP/codex2/$profile.config.toml" ] \
+    || fail "uninstall left the new $profile files behind"
+done
+[ ! -e "$TMP/claude2/agents/opus-judge.md" ] \
+  || fail 'uninstall left the new Opus judge behind'
 [ ! -e "$TMP/bin2/delegation-route" ] && [ ! -e "$TMP/bin2/delegation-router" ] \
   || fail 'uninstall left route discovery or the router on the bin path'
 [ "$(cat "$TMP/data2.router-receipts.jsonl.bak")" = '{"ts":2}' ] \

@@ -213,12 +213,12 @@ fi
 sonnet_reviewer_profile="$(resolve_claude_agent sonnet-reviewer.md || true)"
 if [ -n "$sonnet_reviewer_profile" ] \
     && grep -Fxq 'model: sonnet' "$sonnet_reviewer_profile" \
-    && grep -Fxq 'effort: medium' "$sonnet_reviewer_profile" \
+    && grep -Fxq 'effort: high' "$sonnet_reviewer_profile" \
     && grep -Fxq 'tools: Read, Grep, Glob' "$sonnet_reviewer_profile" \
     && grep -Fq 'configured review policy' "$sonnet_reviewer_profile"; then
-  ok "sonnet-reviewer pinned to sonnet/medium, tool-read-only, and configured review policy"
+  ok "sonnet-reviewer pinned to sonnet/high, tool-read-only, and configured review policy"
 else
-  bad "sonnet-reviewer missing, stale, or not sonnet/medium, read-only, under the configured review policy — re-run ./install.sh"
+  bad "sonnet-reviewer missing, stale, or not sonnet/high, read-only, under the configured review policy — re-run ./install.sh"
 fi
 if [ -f "$CLAUDE_HOME/skills/model-routing/SKILL.md" ]; then
   ok "model-routing skill installed"

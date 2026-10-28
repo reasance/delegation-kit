@@ -185,10 +185,10 @@ class CliTests(Fixture):
         self.assertEqual(out["decider"]["raw"], Provider.reply)
 
     def test_a_half_point_moves_the_minimum(self):
-        # 2 of 4 needs the mid band (37.6): `mid` reaches it. 2.5 needs 43.6,
+        # 2 of 4 needs the mid band (38.4): `mid` reaches it. 2.5 needs 44.4,
         # halfway to the frontier band: only `frontier` reaches it.
         decide = ("decide", "--prompt-file", str(self.base / "prompt"), "--json")
-        for rating, minimum, profile in [(2, 37.6, "mid"), (2.5, 43.6, "frontier")]:
+        for rating, minimum, profile in [(2, 38.4, "mid"), (2.5, 44.4, "frontier")]:
             with self.subTest(rating):
                 Provider.reply = {
                     "choices": [
@@ -331,6 +331,7 @@ class CliTests(Fixture):
         local.parent.mkdir(parents=True)
         tiering = {
             "rule": "index-bands-v1",
+            "index_version": "5.0",
             "frontier_within": 8,
             "mid_within": 20,
             "top_index": 58,
@@ -346,6 +347,7 @@ class CliTests(Fixture):
             "json_mode": True,
             "evidence": {
                 "source": "artificialanalysis",
+                "index_version": "5.0",
                 "name": "Mid Model",
                 "index": 57,
                 "variant": "max",
@@ -365,6 +367,7 @@ class CliTests(Fixture):
         # the fixture declares tiers on every profile; drop mid's so the catalog places it
         del self.config["profiles"]["mid"]["tier"]
         del self.config["profiles"]["mid"]["price"]
+        self.config["profiles"]["mid"]["parameters"] = {"effort": "max"}
         self.save()
         out = json.loads(self.run_cli("check", "--json").stdout)
         self.assertEqual(out["catalog_source"], "local")

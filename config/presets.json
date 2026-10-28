@@ -90,7 +90,7 @@
         "routine-review"
       ],
       "parameters": {
-        "effort": "medium"
+        "effort": "high"
       }
     },
     "opus-builder": {
@@ -373,6 +373,39 @@
       "parameters": {
         "effort": "max",
         "contributor_mode": "off"
+      }
+    },
+    "terra-builder": {
+      "adapter": "codex",
+      "model": "gpt-6.1-terra",
+      "family": "openai",
+      "roles": [
+        "builder"
+      ],
+      "parameters": {
+        "effort": "high"
+      }
+    },
+    "terra-builder-max": {
+      "adapter": "codex",
+      "model": "gpt-6.1-terra",
+      "family": "openai",
+      "roles": [
+        "builder"
+      ],
+      "parameters": {
+        "effort": "max"
+      }
+    },
+    "opus-judge": {
+      "adapter": "claude-code",
+      "model": "claude-opus-5-5",
+      "family": "anthropic",
+      "roles": [
+        "judgement"
+      ],
+      "parameters": {
+        "effort": "max"
       }
     }
   }

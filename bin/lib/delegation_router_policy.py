@@ -602,9 +602,14 @@ def disclosure(c, feats, verdict, choice, decision, blocked, skipped, mode):
         "decision_latency_ms": decision.get("latency_ms", 0),
         "decision_cost_usd": decision.get("cost_usd", 0.0),
         "catalog_version": catalog()["catalog_version"],
+        "index_version": (catalog().get("tiering") or {}).get("index_version"),
     }
     if skipped:
         out["reasons"].insert(0, "decider skipped: " + skipped)
+    if catalog().get("ignored_local_catalog"):
+        out["warnings"].append(
+            "local catalog ignored: " + catalog()["ignored_local_catalog"]
+        )
     if decision.get("error"):
         out["warnings"].append("decider failed: " + decision["error"])
     if decision.get("input"):

@@ -1,0 +1,6 @@
+model = "gpt-6.1-terra"
+model_reasoning_effort = "max"
+sandbox_mode = "workspace-write"
+
+[features]
+multi_agent = false

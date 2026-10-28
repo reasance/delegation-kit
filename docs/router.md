@@ -451,3 +451,21 @@ The gate is advisory; `serve` never reads it.
 | p95 latency | ≤ 300 ms (Dipylon 1.2 s, `llm` 1.5 s) |
 | undecidable | ≤ 15 % |
 | decision cost | ≤ 10 % of the saving |
+
+## Intelligence Index v5 evidence
+
+The shipped catalog identifies Intelligence Index 5.0. Its 8/20-point bands use
+only current-suite measurements. An effort without an exact measurement has no
+routing score, including named efforts for a model measured at a single unnamed
+setting. GLM-5.3-Flash and Mistral Medium 3.5 have no current v5 index; their old
+scores are not reused. Explicit profile tiers remain user declarations.
+
+A newer local catalog with a different or missing index version is ignored.
+Refresh it to v5 before using it as an overlay; partial compatible overlays
+retain row-level version checks. The user's router pool, default and decider
+are not changed automatically. A default may still be used on an undecidable
+request; its selection is disclosed and is not a benchmark qualification.
+
+AA task cost and provider token prices are separate. Legacy coding/math fields
+are not relabeled as new v5 component scores. Model refresh uses the catalog's
+explicit AA slug where available, preserving the DeepSeek 1017 identity.

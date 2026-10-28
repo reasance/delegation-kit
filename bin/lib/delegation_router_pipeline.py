@@ -260,6 +260,7 @@ def check(c, reach=None):
         "valid": True,
         "catalog_version": catalog()["catalog_version"],
         "catalog_source": catalog().get("catalog_source", "shipped"),
+        "index_version": (catalog().get("tiering") or {}).get("index_version"),
         "enabled": bool(r),
     }
     if not r:
@@ -270,6 +271,8 @@ def check(c, reach=None):
         return result
     pool = pool_meta(c)
     warnings = []
+    if catalog().get("ignored_local_catalog"):
+        warnings.append("local catalog ignored: " + catalog()["ignored_local_catalog"])
     for m in pool:
         if m["tier"] is None:
             warnings.append(m["profile"] + ": no tier declared; usable only as default")

@@ -383,7 +383,7 @@ if [ "$do_claude" = 1 ]; then
   echo "Claude Code -> $CLAUDE_HOME"
   mkdir -p "$CLAUDE_HOME/agents" "$CLAUDE_HOME/skills"
   for profile in "$KIT"/agents/*.md; do copy_managed "$profile" "$CLAUDE_HOME/agents/$(basename "$profile")"; done
-  echo "  + 6 subagent profiles -> $CLAUDE_HOME/agents/"
+  echo "  + Claude subagent profiles -> $CLAUDE_HOME/agents/"
   # register the user-direction guard first — it is the linchpin, so a missing
   # optional skill source below cannot abort install (set -e) before the bridge
   # is wired. append_guarded replaces any older guarded block (including a
@@ -397,11 +397,14 @@ if [ "$do_codex" = 1 ]; then
   echo "Codex -> $CODEX_HOME"
   mkdir -p "$CODEX_HOME/agents" "$CODEX_HOME/skills"
   for profile in "$KIT"/codex/agents/*.toml; do copy_managed "$profile" "$CODEX_HOME/agents/$(basename "$profile")"; done
-  echo "  + 5 native subagent profiles -> $CODEX_HOME/agents/"
+  echo "  + Codex native subagent profiles -> $CODEX_HOME/agents/"
   for profile in "$KIT"/codex/profiles/*.config.toml; do copy_managed "$profile" "$CODEX_HOME/$(basename "$profile")"; done
-  echo "  + 5 ephemeral -p profiles -> $CODEX_HOME/"
+  echo "  + Codex ephemeral -p profiles -> $CODEX_HOME/"
   # sol-builder and sol-reviewer were terra-builder and terra-reviewer.
   for legacy in terra-builder terra-reviewer; do
+    # A name may be deliberately reintroduced for a current model. Do not
+    # delete a freshly copied profile as part of historical cleanup.
+    [ ! -f "$KIT/codex/agents/$legacy.toml" ] || continue
     remove_managed "$CODEX_HOME/agents/$legacy.toml"
     remove_managed "$CODEX_HOME/$legacy.config.toml"
   done

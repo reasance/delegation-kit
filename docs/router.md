@@ -207,10 +207,10 @@ becomes a **minimum score** on the Artificial Analysis index:
 | rating | minimum | today |
 |---|---|---|
 | ≤ 1 | none | 0 |
-| 1.5 | in proportion | 18.8 |
-| 2 | bottom of the mid band | 37.6 |
-| 2.5 | in proportion | 43.6 |
-| ≥ 3 | bottom of the frontier band | 49.6 |
+| 1.5 | in proportion | 19.2 |
+| 2 | bottom of the mid band | 38.4 |
+| 2.5 | in proportion | 44.4 |
+| ≥ 3 | bottom of the frontier band | 50.4 |
 
 - A yes/no "needs a strong model" sets the frontier band from 0.7, the mid
   band from 0.3; the higher minimum wins.
@@ -221,8 +221,8 @@ becomes a **minimum score** on the Artificial Analysis index:
   tier; the cheapest by `price.in × est_tokens + price.out × max_tokens`
   (1024 when unset) wins. If none reaches it, the strongest eligible answers
   and the reasons say so.
-- A profile's score is the index at the reasoning setting it runs at (its
-  declared `effort`, if measured). A hand-placed model or a declared `tier`
+- A profile's score is the current-v5 index at its exact measured effort.
+  An unmeasured named effort has no score. A hand-placed model or a declared `tier`
   counts as the bottom of its band.
 - Effort, on `deepseek-api` and `token-plan-openai` only: `high` from a rating
   of 3.6 (a floor; a declared `xhigh` or `max` is kept), `low` below 1.5 on a
@@ -233,13 +233,18 @@ becomes a **minimum score** on the Artificial Analysis index:
 The rule is Levanto Sage's: *the cheapest model that will get it right*. The
 decider judges the task; your configuration judges the models.
 
-In a pool of Opus 5.5, GPT-6 Astra, GLM 5.3 Flash, Kimi K3.1 Pro and Qwen3.8 Max:
+For a configured pool of Luna/max, Terra/high and Opus/max, using the
+2026-10-28 v5 snapshot:
 
 | minimum | candidates (score, $ in/out per Mtok) | winner |
 |---|---|---|
-| 49.6 | Opus 5.5 (57.6, 4/20), Kimi K3.1 Pro (55.1, 2/10), GPT-6 Astra (50.9, 10/50) | Kimi; Opus only for a minimum above 55.1, or if Kimi is blocked or not in the pool |
-| 37.6 | GLM 5.3 Flash (41.8, 0.15/0.50), Qwen3.8 Max (45.4, 2/6), Kimi K3.1 Pro | GLM |
-| 43.6 | Qwen3.8 Max, Kimi K3.1 Pro | Qwen; Kimi for a minimum above 45.4 |
+| 0 | Luna/max (27.8, 0.10/0.50), Terra/high (42.3, 1/5), Opus/max (58.4, 4/20) | Luna |
+| 38.4 | Terra/high, Opus/max | Terra |
+| 44.4 or 50.4 | Opus/max | Opus |
+
+These are published benchmark scores and per-token cost estimates for the
+example, not task-success guarantees or local CLI invoices. Model-level
+unnamed measurements cannot establish a floor for a named profile effort.
 
 Your levers: `tier` and `price` per profile, the pool, the default, the
 ceiling. The `reasons` give the minimum, the chosen score and each candidate's
@@ -342,8 +347,9 @@ Headers: `X-Router-Profile`, `X-Router-Model`, `X-Router-Tier`,
 `X-Router-Model-Mismatch: 1` when the provider names a model other than the
 profile's or an alias.
 
-A `router` object next to `choices` (`reasons` state difficulty on 0–1, so a
-rating of 1 reads 0.25):
+A historical 2026-10-21 `router` object next to `choices`, shown for its
+response shape (`reasons` state difficulty on 0–1, so a rating of 1 reads 0.25).
+Its scores and bands predate v5; current responses also disclose `index_version`:
 
 ```json
 "router": {

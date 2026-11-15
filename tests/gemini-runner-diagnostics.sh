@@ -28,6 +28,7 @@ if [ "${1:-}" = models ]; then
   exit 0
 fi
 no_ssh_markers
+[ -z "${FAKE_DISPATCH_SENTINEL:-}" ] || : > "$FAKE_DISPATCH_SENTINEL"
 case "${FAKE_AGY_CASE:-success}" in
  success)
    expected_model="${FAKE_EXPECT_MODEL:-gemini-3.8-flash-high}"
@@ -62,7 +63,7 @@ run() { local name="$1" expected="$2"; shift 2; local rc=0; PATH="$TMP/bin:$PATH
 
 # Fake agy makes every probe local.
 PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" check --json >"$TMP/check.json"
-json "$TMP/check.json" '.model == "gemini-3.8-flash" and .backends.agy.available == true and .adapter == "agy" and .roles == ["scout","builder","frontend-builder","reviewer","judgement"] and .efforts == ["medium","high"]'
+json "$TMP/check.json" '.model == "gemini-3.8-flash" and .backends.agy.available == true and .adapter == "agy" and .roles == ["scout","builder","frontend-builder","reviewer","judgement"] and .efforts == ["low","medium","high"]'
 # Reject a matching description, another effort, and an ID prefix.
 for inventory in 'gemini-3.8-flash-medium' 'gemini-3.8-flash-high-extra' "other$(printf '\t')gemini-3.8-flash-high"; do
   FAKE_AGY_MODELS="$inventory" PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" check --json >"$TMP/nonmatch.json"
@@ -78,6 +79,10 @@ json "$TMP/results/success.out.metrics.json" '.runtime_model == "gemini-3.8-flas
 
 FAKE_AGY_PLUGINS='example-plugin 1.0 enabled' PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" check --json >"$TMP/plugin-check.json"
 json "$TMP/plugin-check.json" '.selected_backend == "none" and .backends.agy.available == false'
+
+# Newer agy changed only the wording of an empty inventory; real plugins remain refused.
+FAKE_AGY_PLUGINS='No plugins installed.' PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" check --json >"$TMP/new-empty-plugin-check.json"
+json "$TMP/new-empty-plugin-check.json" '.backends.agy.available == true'
 
 rc=0
 FAKE_EXPECT_MODEL=gemini-3.8-flash-high FAKE_EXPECT_EFFORT=high FAKE_AGY_MODELS=gemini-3.8-flash-high \
@@ -107,6 +112,31 @@ rc=0; DELEGATION_TIMEOUT=abc PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini"
 rc=0; PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" run --lane policy-annotation --prompt-file "$TMP/prompt" --output "$TMP/results/unsupported-role.out" --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
 [ "$rc" = 78 ] || fail "unsupported role returned $rc"
 [ ! -e "$TMP/results/unsupported-role.out" ] || fail "unsupported role created output"
+# New model profiles keep the exact model/level and the same isolation contract.
+for effort in medium high xhigh; do
+  rc=0
+  model="gemini-4-hydrogen-$effort"
+  DELEGATION_REQUESTED_MODEL=gemini-4-hydrogen DELEGATION_PROFILE_EFFORT="$effort" \
+    FAKE_AGY_MODELS="$model" FAKE_EXPECT_MODEL="$model" FAKE_EXPECT_EFFORT="$effort" \
+    PATH="$TMP/bin:$PATH" TMPDIR="$TMP/runtime" "$ROOT/bin/delegation-gemini" run \
+    --lane builder --prompt-file "$TMP/prompt" --output "$TMP/results/hydrogen-$effort.out" \
+    --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
+  [ "$rc" = 0 ] || fail "Hydrogen/$effort returned $rc"
+  json "$TMP/results/hydrogen-$effort.out.metrics.json" ".runtime_model == \"$model\" and .model_identity_source == \"requested-only\""
+done
+rc=0
+DELEGATION_REQUESTED_MODEL=gemini-4-carbon FAKE_AGY_MODELS=gemini-4-carbon-high-extra \
+  FAKE_DISPATCH_SENTINEL="$TMP/carbon-called" PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" run \
+  --lane judgement --prompt-file "$TMP/prompt" --output "$TMP/results/carbon-missing.out" \
+  --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
+[ "$rc" = 69 ] && [ ! -e "$TMP/carbon-called" ] || fail 'Carbon inventory guard dispatched or accepted a prefix'
+rc=0
+DELEGATION_REQUESTED_MODEL=gemini-4-carbon FAKE_AGY_MODELS=gemini-4-carbon-high \
+  FAKE_EXPECT_MODEL=gemini-4-carbon-high PATH="$TMP/bin:$PATH" TMPDIR="$TMP/runtime" \
+  "$ROOT/bin/delegation-gemini" run --lane judgement --prompt-file "$TMP/prompt" \
+  --output "$TMP/results/carbon-ready.out" --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
+[ "$rc" = 0 ] || fail 'exposed Carbon model did not run through the CLI'
+
 for case in process_exit empty permission auth rate; do
   case "$case" in
     process_exit|empty|permission) expected=70 ;;

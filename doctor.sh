@@ -203,10 +203,10 @@ else
 fi
 fable_profile="$(resolve_claude_agent fable-judge.md || true)"
 if [ -n "$fable_profile" ] \
-    && grep -Fxq 'model: claude-fable-5-1' "$fable_profile" \
-    && grep -Fxq 'effort: max' "$fable_profile" \
+    && grep -Fxq 'model: claude-fable-5-2' "$fable_profile" \
+    && grep -Fxq 'effort: high' "$fable_profile" \
     && grep -Fxq 'tools: Read, Grep, Glob' "$fable_profile"; then
-  ok "fable-judge pinned to claude-fable-5-1/max and read-only judgement"
+  ok "fable-judge pinned to claude-fable-5-2/high and read-only judgement"
 else
   bad "fable-judge missing or stale — re-run ./install.sh"
 fi

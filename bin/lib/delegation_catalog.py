@@ -18,6 +18,7 @@ import functools
 import json
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from delegation_config import (
@@ -33,7 +34,7 @@ from delegation_config import (
 from delegation_credentials import key_from_file
 
 
-AA_URL = "https://artificialanalysis.ai/api/v2/data/llms/models"
+AA_URL = "https://artificialanalysis.ai/api/v2/language/models/free"
 
 
 AA_ATTRIBUTION = "https://artificialanalysis.ai/"
@@ -46,7 +47,7 @@ AA_KEY_VAR = "AA_API_KEY"
 
 
 RULE = "index-bands-v1"
-INDEX_VERSION = "5.0"
+INDEX_VERSION = "5.0.1"
 VERSION_SOURCE = "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
 
 
@@ -419,6 +420,8 @@ def refresh(catalog, rows, today):
         new["tier"] = place(best["index"], tiering)
         if (
             new.get("price") is None
+            # Benchmark pricing does not establish an active restricted-preview tariff.
+            and new.get("serving_status") in (None, "available")
             and best["price_in"] is not None
             and best["price_out"] is not None
             and best["price_in"] + best["price_out"] > 0
@@ -446,25 +449,53 @@ def fetch(key, opener=None, timeout=30, url=AA_URL):
     """One GET to the models endpoint with the user's key. Raises ValueError
     with a reason that carries no key."""
     opener = opener or urllib.request.urlopen
-    request = urllib.request.Request(
-        url,
-        headers={
-            "x-api-key": key,
-            "Accept": "application/json",
-            "User-Agent": "delegation-kit/" + kit_version(),
-        },
-    )
-    try:
-        with opener(request, timeout=timeout) as response:
-            data = json.loads(response.read(50_000_000))
-    except urllib.error.HTTPError as error:
-        raise ValueError("Artificial Analysis answered HTTP %d" % error.code)
-    except (urllib.error.URLError, TimeoutError, OSError) as error:
-        raise ValueError("Artificial Analysis unreachable: " + type(error).__name__)
-    rows = data.get("data") if isinstance(data, dict) else data
-    if not isinstance(rows, list):
-        raise ValueError("unexpected Artificial Analysis response shape")
-    return rows
+    rows, page = [], 1
+    parts = urllib.parse.urlsplit(url)
+    query = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query) if k != "page"]
+    while page <= 1000:
+        page_url = urllib.parse.urlunsplit(
+            parts._replace(query=urllib.parse.urlencode(query + [("page", page)]))
+        )
+        request = urllib.request.Request(
+            page_url,
+            headers={
+                "x-api-key": key,
+                "Accept": "application/json",
+                "User-Agent": "delegation-kit/" + kit_version(),
+            },
+        )
+        try:
+            with opener(request, timeout=timeout) as response:
+                data = json.loads(response.read(50_000_000))
+        except urllib.error.HTTPError as error:
+            raise ValueError(
+                "Artificial Analysis answered HTTP %d" % error.code
+            ) from None
+        except (urllib.error.URLError, TimeoutError, OSError) as error:
+            raise ValueError(
+                "Artificial Analysis unreachable: " + type(error).__name__
+            ) from None
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
+            raise ValueError("unexpected Artificial Analysis response shape")
+        # API versions carry major.minor only; the patch is pinned to methodology.
+        if str(data.get("intelligence_index_version")) not in ("5", "5.0"):
+            raise ValueError(
+                "incompatible Artificial Analysis Intelligence Index version"
+            )
+        paging = data.get("pagination")
+        if (
+            not isinstance(paging, dict)
+            or paging.get("page") != page
+            or not isinstance(paging.get("has_more"), bool)
+        ):
+            raise ValueError("unexpected Artificial Analysis pagination")
+        rows.extend(data["data"])
+        if not paging["has_more"]:
+            return rows
+        if not data["data"]:
+            raise ValueError("empty Artificial Analysis page before end of results")
+        page += 1
+    raise ValueError("Artificial Analysis pagination limit exceeded")
 
 
 def local_path():
@@ -512,6 +543,8 @@ def describe(cat):
                 "code": row.get("code"),
                 "price": row.get("price"),
                 "context": row.get("context"),
+                "serving_status": row.get("serving_status"),
+                "serving_source": row.get("serving_source"),
             }
         )
     return {
@@ -561,7 +594,7 @@ def render_show(report):
     )
     for m in report["models"]:
         lines.append(
-            "    %-26s %-9s %s%s"
+            "    %-26s %-9s %s%s%s"
             % (
                 m["model"],
                 m["tier"],
@@ -569,6 +602,7 @@ def render_show(report):
                 " index %s (%s)" % (m["index"], m["variant"])
                 if m["index"] is not None
                 else "",
+                " [%s]" % m["serving_status"] if m.get("serving_status") else "",
             )
         )
     return lines

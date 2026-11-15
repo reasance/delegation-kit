@@ -207,10 +207,15 @@ becomes a **minimum score** on the Artificial Analysis index:
 | rating | minimum | today |
 |---|---|---|
 | ≤ 1 | none | 0 |
-| 1.5 | in proportion | 19.2 |
-| 2 | bottom of the mid band | 38.4 |
-| 2.5 | in proportion | 44.4 |
-| ≥ 3 | bottom of the frontier band | 50.4 |
+| 1.5 | in proportion | 22.3 |
+| 2 | bottom of the mid band | 44.6 |
+| 2.5 | in proportion | 50.6 |
+| ≥ 3 | bottom of the frontier band | 56.6 |
+
+These floors use the 2026-11-10 v5.0.1 snapshot with Fable 5.2/max at 64.6
+as the benchmark maximum. Carbon is public on Google APIs, but no CLI
+profile is activated until a CLI exposes it. Catalog entries do not add
+profiles to a personal pool. See [the benchmark reference](model-benchmarks.md).
 
 - A yes/no "needs a strong model" sets the frontier band from 0.7, the mid
   band from 0.3; the higher minimum wins.
@@ -234,13 +239,13 @@ The rule is Levanto Sage's: *the cheapest model that will get it right*. The
 decider judges the task; your configuration judges the models.
 
 For a configured pool of Luna/max, Terra/high and Opus/max, using the
-2026-10-28 v5 snapshot:
+2026-11-10 v5.0.1 snapshot:
 
 | minimum | candidates (score, $ in/out per Mtok) | winner |
 |---|---|---|
-| 0 | Luna/max (27.8, 0.10/0.50), Terra/high (42.3, 1/5), Opus/max (58.4, 4/20) | Luna |
-| 38.4 | Terra/high, Opus/max | Terra |
-| 44.4 or 50.4 | Opus/max | Opus |
+| 0 | Luna/max (27.9, 0.10/0.50), Terra/high (42.4, 1/5), Opus/max (59.1, 4/20) | Luna |
+| 44.6 | Opus/max | Opus |
+| 50.6 or 56.6 | Opus/max | Opus |
 
 These are published benchmark scores and per-token cost estimates for the
 example, not task-success guarantees or local CLI invoices. Model-level
@@ -460,14 +465,14 @@ The gate is advisory; `serve` never reads it.
 
 ## Intelligence Index v5 evidence
 
-The shipped catalog identifies Intelligence Index 5.0. Its 8/20-point bands use
+The shipped catalog identifies Intelligence Index 5.0.1. Its 8/20-point bands use
 only current-suite measurements. An effort without an exact measurement has no
 routing score, including named efforts for a model measured at a single unnamed
-setting. GLM-5.3-Flash and Mistral Medium 3.5 have no current v5 index; their old
-scores are not reused. Explicit profile tiers remain user declarations.
+setting. GLM-5.3-Flash and Mistral Medium 3.5 now have unnamed measurements;
+these do not establish scores for named max/high efforts. Explicit profile tiers remain user declarations.
 
 A newer local catalog with a different or missing index version is ignored.
-Refresh it to v5 before using it as an overlay; partial compatible overlays
+Refresh it to v5.0.1 before using it as an overlay; partial compatible overlays
 retain row-level version checks. The user's router pool, default and decider
 are not changed automatically. A default may still be used on an undecidable
 request; its selection is disclosed and is not a benchmark qualification.

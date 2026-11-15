@@ -206,10 +206,10 @@ ok
   && grep -Fxq 'effort: max' "$TMP/claude/agents/opus-builder.md" \
   || fail 'install did not include opus-builder at max'
 [ -f "$TMP/claude/agents/fable-judge.md" ] \
-  && grep -Fxq 'model: claude-fable-5-1' "$TMP/claude/agents/fable-judge.md" \
-  && grep -Fxq 'effort: max' "$TMP/claude/agents/fable-judge.md" \
+  && grep -Fxq 'model: claude-fable-5-2' "$TMP/claude/agents/fable-judge.md" \
+  && grep -Fxq 'effort: high' "$TMP/claude/agents/fable-judge.md" \
   && grep -Fxq 'tools: Read, Grep, Glob' "$TMP/claude/agents/fable-judge.md" \
-  || fail 'install did not include fable-judge at max'
+  || fail 'install did not include Fable 5.2 judgement at high'
 [ -f "$TMP/claude/agents/opus-reviewer.md" ] \
   && grep -Fxq 'effort: max' "$TMP/claude/agents/opus-reviewer.md" \
   && grep -Fxq 'tools: Read, Grep, Glob' "$TMP/claude/agents/opus-reviewer.md" \

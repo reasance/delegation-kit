@@ -151,6 +151,8 @@ class CatalogTests(unittest.TestCase):
         self.assertNotIn("price_source", again["models"]["deepseek-flash"])
 
     def test_fetch_sends_the_key_and_reads_the_envelope(self):
+        from urllib.parse import parse_qs, urlsplit
+
         seen = {}
 
         class Response:
@@ -168,13 +170,34 @@ class CatalogTests(unittest.TestCase):
 
         def opener(request, timeout):
             seen["key"] = request.get_header("X-api-key")
-            seen["url"] = request.full_url
-            return Response({"status": 200, "data": AA_ROWS})
+            page = int(parse_qs(urlsplit(request.full_url).query)["page"][0])
+            return Response(
+                {
+                    "intelligence_index_version": 5,
+                    "data": AA_ROWS[:2] if page == 1 else AA_ROWS[2:],
+                    "pagination": {"page": page, "has_more": page == 1},
+                }
+            )
 
         rows = fetch("sk-canary-aa", opener=opener)
-        self.assertEqual(len(rows), len(AA_ROWS))
+        self.assertEqual(rows, AA_ROWS)
         self.assertEqual(seen["key"], "sk-canary-aa")
-        self.assertTrue(seen["url"].startswith("https://artificialanalysis.ai/api/v2/"))
+        for envelope in [
+            {
+                "intelligence_index_version": 6,
+                "data": [],
+                "pagination": {"page": 1, "has_more": False},
+            },
+            {
+                "intelligence_index_version": 5,
+                "data": [],
+                "pagination": {"page": 1, "has_more": True},
+            },
+        ]:
+            with self.subTest(envelope=envelope), self.assertRaises(ValueError):
+                fetch(
+                    "sk-canary-aa", opener=lambda request, timeout: Response(envelope)
+                )
 
     def test_key_comes_from_the_variable_or_a_private_file(self):
         with tempfile.TemporaryDirectory() as tmp:

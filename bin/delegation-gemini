@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the pinned Gemini 3.8 Flash variants through Antigravity CLI. This is a
+# Run pinned Gemini variants through Antigravity CLI. This is a
 # fail-closed bridge: it never substitutes a model, effort, or harness.
 set -euo pipefail
 
@@ -18,7 +18,10 @@ load_kit_env
 MODEL="${DELEGATION_REQUESTED_MODEL:-gemini-3.8-flash}"
 ADAPTER="agy"
 ROLES="scout builder frontend-builder reviewer judgement"
-EFFORTS='["medium","high"]'
+case "$MODEL" in
+  gemini-4-carbon|gemini-4-argon|gemini-3.8-flash) EFFORTS='["low","medium","high"]' ;;
+  *) EFFORTS='["low","medium","high","xhigh"]' ;;
+esac
 USER_KEYCHAINS="${HOME:?HOME is required}/Library/Keychains"
 RUN_TMP="" RUN_OUTPUT_TMP="" RUN_METRICS_TMP=""
 
@@ -29,7 +32,7 @@ usage() {
 Usage:
   delegation-gemini check [--json]
   delegation-gemini run --lane <scout|builder|frontend-builder|reviewer|judgement> \
-    [--effort <auto|medium|high>] [--backend <auto|agy>] \
+    [--effort <auto|low|medium|high|xhigh>] [--backend <auto|agy>] \
     --prompt-file <path> --output <path> --workdir <path> \
     [--metrics <path>] [--debug-dir <path>]
 
@@ -61,7 +64,7 @@ prepare_isolated_home() {
   mkdir -p "$isolated_home/.gemini/antigravity-cli" "$isolated_home/Library"
   chmod 700 "$isolated_home" "$isolated_home/.gemini" "$isolated_home/.gemini/antigravity-cli" "$isolated_home/Library"
   ln -s "$USER_KEYCHAINS" "$isolated_home/Library/Keychains"
-  jq -n --arg model "${MODEL}-${DELEGATION_PROFILE_EFFORT:-high}" '{
+  jq -n --arg model "${2:-${MODEL}-${DELEGATION_PROFILE_EFFORT:-high}}" '{
     model:$model,
     permissions:{
       allow:[],
@@ -87,7 +90,7 @@ agy_status() {
     grep -q -- "$flag" <<<"$help" || { AGY_REASON="agy lacks $flag"; return 1; }
   done
   status_tmp="$(mktemp -d "${TMPDIR:-/tmp}/delegation-gemini-status.XXXXXX")"
-  if ! prepare_isolated_home "$status_tmp/home"; then
+  if ! prepare_isolated_home "$status_tmp/home" "$required_model"; then
     rm -rf -- "$status_tmp"
     AGY_REASON="cannot create isolated Antigravity home with macOS Keychain access"
     return 1
@@ -97,11 +100,13 @@ agy_status() {
     AGY_REASON="Antigravity plugin inventory unavailable"
     return 1
   fi
-  if [ "$plugins" != "No imported plugins." ]; then
-    rm -rf -- "$status_tmp"
-    AGY_REASON="isolated Antigravity home unexpectedly imports plugins"
-    return 1
-  fi
+  case "$plugins" in
+    'No imported plugins.'|'No plugins installed.') ;;
+    *)
+      rm -rf -- "$status_tmp"
+      AGY_REASON="isolated Antigravity home unexpectedly imports plugins"
+      return 1 ;;
+  esac
   if ! models="$(agy_env HOME="$status_tmp/home" agy models 2>&1)"; then
     rm -rf -- "$status_tmp"
     AGY_REASON="agy model inventory unavailable; sign in interactively with agy, and keep the login keychain unlocked because this runner reads the OAuth session from it"
@@ -111,7 +116,7 @@ agy_status() {
   # agy emits ID<TAB>display name. Match only the exact ID, never a display
   # name, substring, or a different effort variant. Older ID-only output works.
   awk -F '\t' -v required="$required_model" '$1 == required { found=1 } END { exit !found }' <<<"$models" \
-    || { AGY_REASON="agy does not expose required model $required_model"; return 1; }
+    || { AGY_REASON="agy does not expose required model $required_model"; [[ "$required_model" != gemini-4-carbon-* ]] || AGY_REASON+="; enable Carbon on an eligible Ultra/Enterprise account"; return 1; }
   AGY_REASON="ready"
 }
 
@@ -132,7 +137,7 @@ print_check() {
       --argjson roles "$roles" --argjson efforts "$EFFORTS" \
       '{model:$model,adapter:$adapter,roles:$roles,efforts:$efforts,selected_backend:$selected,backends:{agy:{available:$available,reason:$reason}}}'
   else
-    printf 'Gemini 3.8 Flash: selected=%s roles=%s efforts=%s\n  agy: %s (%s)\n' "$selected" "$(printf '%s' "$ROLES" | tr ' ' ',')" "$EFFORTS" "$available" "$AGY_REASON"
+    printf 'Gemini: selected=%s roles=%s efforts=%s\n  agy: %s (%s)\n' "$selected" "$(printf '%s' "$ROLES" | tr ' ' ',')" "$EFFORTS" "$available" "$AGY_REASON"
   fi
 }
 
@@ -177,7 +182,7 @@ run_command() {
     esac
   done
   [ -n "$lane" ] || die 64 "--lane is required"
-  case "$effort" in auto|medium|high) ;; *) die 64 "invalid effort: $effort" ;; esac
+  case "$effort" in auto|low|medium|high|xhigh) ;; *) die 64 "invalid effort: $effort" ;; esac
   case "$backend" in auto|agy) ;; *) die 64 "invalid backend: $backend" ;; esac
   [ -f "$prompt_file" ] || die 64 "prompt file missing: $prompt_file"; [ -d "$workdir" ] || die 64 "workdir missing: $workdir"; [ -n "$output" ] || die 64 "--output is required"
   [ -z "$debug_dir" ] || { [ -d "$debug_dir" ] && [ ! -L "$debug_dir" ] || die 64 "debug directory missing or symlinked: $debug_dir"; debug_dir="$(cd "$debug_dir" && pwd -P)"; }
@@ -193,7 +198,8 @@ run_command() {
   [ "$norm_output" != "$norm_diagnostic" ] && [ "$norm_metrics" != "$norm_diagnostic" ] || die 64 "path collides with reserved diagnostic path"
   backend=agy
   [ "$effort" != auto ] || effort="${DELEGATION_PROFILE_EFFORT:-high}"
-  case "$effort" in medium|high) ;; *) die 78 "effort '$effort' is not supported by $ADAPTER" ;; esac
+  jq -e --arg effort "$effort" 'index($effort) != null' <<<"$EFFORTS" >/dev/null \
+    || die 78 "effort '$effort' is not supported for $MODEL by $ADAPTER"
   local runtime_model="${MODEL}-$effort"
   agy_status "$runtime_model" || die 69 "$AGY_REASON"
   local user_prompt dispatch_prompt
@@ -215,7 +221,7 @@ $user_prompt"
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/delegation-gemini.XXXXXX")"; RUN_TMP="$tmp"; trap cleanup_run EXIT
   mkdir -p "$tmp/workspace"
   chmod 700 "$tmp/workspace"
-  prepare_isolated_home "$tmp/home" || die 69 "cannot create isolated Antigravity home with macOS Keychain access"
+  prepare_isolated_home "$tmp/home" "$runtime_model" || die 69 "cannot create isolated Antigravity home with macOS Keychain access"
   stdout_file="$tmp/stdout"; stderr_file="$tmp/stderr"; : >"$stdout_file"; : >"$stderr_file"
   RUN_OUTPUT_TMP="$(mktemp "$(dirname "$output")/.$(basename "$output").XXXXXX")"; RUN_METRICS_TMP="$(mktemp "$(dirname "$metrics")/.$(basename "$metrics").XXXXXX")"; started="$(date +%s)"
   (cd "$tmp/workspace" && agy_env HOME="$tmp/home" agy -p "$dispatch_prompt" --model "$runtime_model" --effort "$effort" --mode "$permission" --sandbox --print-timeout "$print_timeout") >"$stdout_file" 2>"$stderr_file" || rc=$?

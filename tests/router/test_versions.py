@@ -1,18 +1,57 @@
 import json
 import unittest
 
-from delegation_catalog import best_variant, profile_meta, refresh
+from delegation_catalog import (
+    best_variant,
+    describe,
+    profile_meta,
+    refresh,
+    render_show,
+)
 from router.fakes import Fixture, Provider
 
 
 class EvidenceVersions(unittest.TestCase):
+    def test_restricted_preview_survives_refresh_without_inventing_active_prices(self):
+        cat = {
+            "catalog_version": "2026-10-28",
+            "models": {
+                "gemini-4-carbon": {
+                    "aa_slug": "gemini-4-carbon",
+                    "serving_status": "restricted-preview",
+                    "serving_source": "google-carbon-announcement",
+                    "context": None,
+                }
+            },
+        }
+        rows = [
+            {
+                "id": "carbon-high",
+                "slug": "gemini-4-carbon",
+                "name": "Gemini 4 Carbon (High)",
+                "evaluations": {"artificial_analysis_intelligence_index": 59.4},
+                "pricing": {"price_1m_input_tokens": 4, "price_1m_output_tokens": 20},
+            }
+        ]
+        new, unmatched = refresh(cat, rows, "2026-10-28")
+        self.assertEqual(unmatched, [])
+        row = new["models"]["gemini-4-carbon"]
+        self.assertIsNone(row.get("price"))
+        self.assertIsNone(row["context"])
+        self.assertEqual(row["serving_status"], "restricted-preview")
+        report = describe(new)
+        self.assertEqual(
+            report["models"][0]["serving_source"], "google-carbon-announcement"
+        )
+        self.assertIn("[restricted-preview]", "\n".join(render_show(report)))
+
     def test_unmeasured_effort_and_wrong_suite_have_no_routing_score(self):
         row = {
             "tier": "frontier",
             "evidence": {
                 "source": "artificialanalysis",
                 "date": "2026-10-28",
-                "index_version": "5.0",
+                "index_version": "5.0.1",
                 "index": 51,
                 "variants": {"max": 51},
             },
@@ -20,7 +59,7 @@ class EvidenceVersions(unittest.TestCase):
         cat = {
             "catalog_version": "2026-10-28",
             "tiering": {
-                "index_version": "5.0",
+                "index_version": "5.0.1",
                 "top_index": 58.4,
                 "frontier_within": 8,
                 "mid_within": 20,
@@ -47,7 +86,7 @@ class EvidenceVersions(unittest.TestCase):
     def test_null_clears_previous_score_and_exact_slug_avoids_name_collision(self):
         cat = {
             "catalog_version": "2026-10-27",
-            "tiering": {"index_version": "5.0"},
+            "tiering": {"index_version": "5.0.1"},
             "models": {
                 "flash": {
                     "aa_slug": "flash-1017",

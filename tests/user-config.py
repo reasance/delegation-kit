@@ -460,16 +460,27 @@ print('200',end='')
             "new-deepseek-model",
         )
 
-    def test_current_preset_excludes_gemini(self):
+    def test_current_presets_include_explicit_google_choices_without_a_router(self):
         (self.base / "config.json").unlink()
         config = json.loads(self.command("delegation-config", "show").stdout)
-        self.assertFalse(
-            any(p["adapter"] == "agy" for p in config["profiles"].values())
+        hydrogen = config["profiles"]["hydrogen-builder"]
+        carbon = config["profiles"]["carbon-judge"]
+        self.assertEqual(
+            (hydrogen["adapter"], hydrogen["model"], hydrogen["parameters"]["effort"]),
+            ("agy", "gemini-4-hydrogen", "high"),
         )
+        self.assertEqual(
+            (carbon["adapter"], carbon["model"], carbon["parameters"]["effort"]),
+            ("agy", "gemini-4-carbon", "high"),
+        )
+        self.assertIsNone(config.get("router"))
         route = json.loads(
             self.command("delegation-route", "resolve", "--lane", "scout").stdout
         )
-        self.assertFalse(any(p["adapter"] == "agy" for p in route["choices"]))
+        self.assertIn(
+            "hydrogen-scout",
+            {p["profile"] for p in route["choices"] if p["adapter"] == "agy"},
+        )
         self.assertEqual(Handler.requests, [])
 
     def test_project_config_is_not_loaded(self):

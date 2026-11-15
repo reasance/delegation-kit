@@ -102,7 +102,7 @@ EFFORTS = {
     "muse-code-cli": {"minimal", "low", "medium", "high", "xhigh", "max"},
     "claude-zai": {"max"},
     "grok-build-cli": {"high"},
-    "agy": {"medium", "high"},
+    "agy": {"low", "medium", "high", "xhigh"},
     "deepseek-api": {"minimal", "low", "medium", "high", "xhigh", "max"},
     "token-plan-openai": {"minimal", "low", "medium", "high", "xhigh", "max"},
     # Sent as `reasoning_effort` only when the profile declares it.
@@ -430,6 +430,12 @@ def validate(c):
             raise ValueError(
                 "gpt-6.1-terra Codex effort must be low|medium|high|xhigh|max"
             )
+        if (
+            p["adapter"] == "agy"
+            and p["model"] in {"gemini-4-carbon", "gemini-4-argon", "gemini-3.8-flash"}
+            and params.get("effort") == "xhigh"
+        ):
+            raise ValueError("xhigh is supported on Hydrogen, not this Gemini model")
         # Whether Meta may train on what a Muse Code run sends; off unless set.
         if "contributor_mode" in params and params["contributor_mode"] not in {
             "on",

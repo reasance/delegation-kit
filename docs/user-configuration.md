@@ -74,8 +74,9 @@ Rules:
   text request with optional Bearer auth. It never calls `/models`, never
   uses tools and never retries. A declared `effort` goes out as
   `reasoning_effort`; without one the field is not sent.
-- Gemini is not in the shipped presets. The `agy` adapter stays installed and
-  works with a profile you add by hand.
+- Optional shipped `hydrogen-*` and `carbon-judge` profiles use `agy`.
+  Hydrogen supports low/medium/high/xhigh. Carbon supports low/medium/high
+  and requires its exact account-enabled CLI ID; no API fallback is selected.
 
 **GPT-6.1 Terra.** The catalog includes `gpt-6.1-terra`, its current prices
 and its per-effort Artificial Analysis results. To select it, add a personal

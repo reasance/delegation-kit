@@ -494,19 +494,19 @@ else
   warn "delegation-glm not installed — re-run ./install.sh"
 fi
 
-# ---- optional Gemini 3.8 Flash external executor ----
+# ---- optional Google external executor ----
 hdr "Gemini executor (agy)"
 if ! have jq; then
   warn "jq not on PATH — delegation-gemini cannot run"
 elif have delegation-gemini; then
   gemini_check="$(delegation-gemini check --json 2>/dev/null || true)"
   if [ -n "$gemini_check" ] && printf '%s' "$gemini_check" | jq -e '.model == "gemini-3.8-flash" and .adapter == "agy"' >/dev/null 2>&1; then
-    ok "delegation-gemini installed (adapter default gemini-3.8-flash; excluded from the shipped presets)"
+    ok "delegation-gemini installed (adapter default gemini-3.8-flash; optional Hydrogen/Carbon profiles shipped)"
     gemini_selected="$(printf '%s' "$gemini_check" | jq -r '.selected_backend')"
     [ "$gemini_selected" = none ] \
       && info "Gemini Antigravity runtime unavailable — the adapter will not be selected" \
       || ok "Gemini backend available ($gemini_selected)"
-    info "Gemini adapter roles: $(printf '%s' "$gemini_check" | jq -r '.roles | join(",")'); add a profile to the personal configuration to use it"
+    info "Gemini adapter roles: $(printf '%s' "$gemini_check" | jq -r '.roles | join(",")'); choose an optional profile in the personal configuration to use it"
   else
     bad "delegation-gemini check failed or reports an unexpected default model"
   fi

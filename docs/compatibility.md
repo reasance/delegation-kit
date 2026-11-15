@@ -10,7 +10,7 @@ below with the numbers observed after running the
 
 ## Verified snapshot
 
-**0.37.0 release candidate, checked on 2026-11-15** on macOS with
+**0.37.0, checked on 2026-11-15** on macOS with
 Claude Code `2.1.323`, Codex CLI `0.168.0`, agy `1.5.9`, Python `3.15.2`
 and gh `2.104.0`, from isolated Claude, Codex, bin, data and configuration
 directories. No personal router configuration was modified.
@@ -28,14 +28,18 @@ directories. No personal router configuration was modified.
 - **CLI metadata:** Hydrogen IDs are listed by the checked agy account.
   Carbon is absent, remains explicit opt-in, and must pass the exact-account
   inventory guard. No Google inference was used.
-- **Live verification pending:** the initially authorized doctor pass returned
-  `51 OK, 1 WARN, 1 FAIL`. Claude `sonnet`/low returned `PONG`. Codex rejected
-  the temporary test configuration before inference because it combined a
-  legacy `[profiles.luna-clerk]` table with the installed native profile file.
-  Removing that table made the read-only prompt-preview command pass. The
-  five initially authorized CLI attempts are exhausted; no retry is performed
-  without the owner's additional authorization. The final Luna ping remains
-  a pre-tag gate.
+- **Live endpoint checks:** Claude `sonnet`/low returned `PONG` in the initial
+  doctor pass. The initial Luna attempt stopped before inference because the
+  temporary test configuration combined a legacy `[profiles.luna-clerk]`
+  table with the installed native profile file. After removing that table,
+  the read-only prompt preview passed. The owner then authorized exactly one
+  additional `luna-clerk`/max invocation: it returned `PONG`, exit 0, with
+  Codex reporting `gpt-6-luna` and max effort. There was no automatic retry or
+  fallback. Across both invocations the two endpoints were reached; no second
+  complete `doctor.sh --ping` pass was used to repeat the Claude call. The
+  original doctor's `51 OK, 1 WARN, 1 FAIL` and the successful final Luna
+  output are retained separately. These checks establish reachability, not
+  a quality qualification or provider identity attestation for the new roles.
 
 ### Previous verified snapshot
 

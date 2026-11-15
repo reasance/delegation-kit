@@ -150,13 +150,13 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.36.0
+## Current release: 0.37.0
 
-Version 0.36.0 migrates the catalog and routing evidence to Artificial Analysis
-Intelligence Index v5.0. New Terra builder and Opus judge presets are available;
-Sonnet routine review uses high effort. Unmeasured efforts and incompatible
-local catalog versions no longer inherit a benchmark score. Existing personal
-configurations and router pools remain user-owned.
+Version 0.37.0 adds Hydrogen scout and builder profiles plus an explicit
+Carbon/high judge through agy, with exact account-inventory checks. Shipped
+Fable judgement profiles use 5.2/high. AA v5.0.1 scores are effort-specific;
+frontier starts at 56.6 and mid at 44.6. Personal router pools, defaults,
+deciders and explicit model choices stay user-owned.
 
 Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
 

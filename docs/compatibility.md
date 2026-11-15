@@ -10,6 +10,35 @@ below with the numbers observed after running the
 
 ## Verified snapshot
 
+**0.37.0 release candidate, checked on 2026-11-15** on macOS with
+Claude Code `2.1.323`, Codex CLI `0.168.0`, agy `1.5.9`, Python `3.15.2`
+and gh `2.104.0`, from isolated Claude, Codex, bin, data and configuration
+directories. No personal router configuration was modified.
+
+- **Static installation:** `50 OK, 1 WARN, 0 FAIL`. The warning is the
+  deliberate `multi_agent = false` setting in the isolated Codex configuration.
+- **Offline:** 14 suites passed in 46 seconds, 11 npm-wrapper tests, Ruff
+  0.13.0, ShellCheck and version consistency passed.
+- **Catalog:** the complete 741-row AA API refresh agrees with controller
+  scores, tiers and official prices for all 26 measured matches. Three models
+  remain unmeasured; the native refresher leaves their evidence null while the
+  controller keeps explicit empty, versioned evidence. The reproducible
+  controller catalog is retained. Top index is 64.6, frontier starts at 56.6,
+  and mid at 44.6 under the existing 8/20-point rule.
+- **CLI metadata:** Hydrogen IDs are listed by the checked agy account.
+  Carbon is absent, remains explicit opt-in, and must pass the exact-account
+  inventory guard. No Google inference was used.
+- **Live verification pending:** the initially authorized doctor pass returned
+  `51 OK, 1 WARN, 1 FAIL`. Claude `sonnet`/low returned `PONG`. Codex rejected
+  the temporary test configuration before inference because it combined a
+  legacy `[profiles.luna-clerk]` table with the installed native profile file.
+  Removing that table made the read-only prompt-preview command pass. The
+  five initially authorized CLI attempts are exhausted; no retry is performed
+  without the owner's additional authorization. The final Luna ping remains
+  a pre-tag gate.
+
+### Previous verified snapshot
+
 **0.36.0, checked on 2026-10-28** on macOS with Claude Code `2.1.312`,
 Codex CLI `0.165.0`, Python `3.15.2` and gh `2.103.3`, from the release
 candidate.

@@ -4,6 +4,8 @@ All notable changes to delegation-kit are documented here.
 
 ## [Unreleased]
 
+## [0.37.0] — 2026-11-15
+
 - Add agy Hydrogen scout/medium and builder/high/xhigh profiles plus an optional Carbon/high judge. Extend the adapter to low/medium/high/xhigh with per-model validation and exact inventory checks; preserve prompt-only isolation and personal router choices.
 
 - Move shipped Fable judgement and annotation profiles to Fable 5.2/high; add an explicit fable-judge-max option. Preserve personal profile models, efforts and router pools.

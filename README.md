@@ -31,8 +31,8 @@ configuration judges the models.
    cannot steer it.
 3. **The rating becomes a minimum score** on the same public index that
    places the models: up to 1, none; at 2, the bottom of the mid band
-   (37.6 today); from 3, the bottom of the frontier band (49.6); in between,
-   in proportion (2.5 → 43.6). `math`, `rare` and `tools` raise it to the
+   (44.6 in the November 15 v5.0.1 snapshot); from 3, the frontier floor
+   (56.6); in between, in proportion (2.5 → 50.6). `math`, `rare` and `tools` raise it to the
    mid band, a very long request to the frontier band; `code` keeps only
    code-capable profiles.
 4. **The cheapest profile that reaches it wins**, whatever its tier, priced
@@ -43,31 +43,32 @@ configuration judges the models.
    `router` object with the signals, the reasons, the candidates with their
    estimated cost, usage and what the provider reported.
 
-With three models from the default install — GPT-5.6 Luna as `luna-clerk`
-(`small`: Intelligence Index 37.3), DeepSeek Flash as `deepseek-flash`
-(`mid`: 39.5) and Claude Opus 5.5 as `opus-reviewer` (`frontier`: 57.6, the
-best model on the board):
+For example, configure three shipped profiles and their credentials:
+Hydrogen/high as `hydrogen-builder` (`mid`: 50.8), DeepSeek Flash/max as
+`deepseek-flash` (`small`: 32.6), and Opus 5.5/max as `opus-reviewer`
+(`frontier`: 59.1). Assume all three are reachable. Fable 5.2/max sets the
+catalog's overall maximum at 64.6 even though it is outside this example pool.
 
 | request | the decider says | minimum | answered by | because |
 |---|---|---|---|---|
-| rename `foo` to `bar` | 1, `code` | none | GPT-5.6 Luna | every model reaches it; Luna is the cheapest |
-| summarise this contract | 2 | 37.6 | DeepSeek Flash | 39.5 reaches it, Luna's 37.3 does not; cheaper than Opus |
-| what is 17 % of 2,340 € | 1, `math` | 37.6 | DeepSeek Flash | `math` raises an easy request to the mid band |
-| why this Go worker pool deadlocks | 2.5, `code` | 43.6 | Claude Opus 5.5 | DeepSeek's 39.5 falls short; Opus is the only one above |
-| find the race condition in this scheduler | 3, `code` | 49.6 | Claude Opus 5.5 | from 3 up only the frontier band |
+| rename `foo` to `bar` | 1, `code` | none | DeepSeek Flash | cheapest code-capable profile in this pool |
+| summarise this contract | 2 | 44.6 | Hydrogen/high | 50.8 clears the minimum and costs less than Opus |
+| what is 17 % of 2,340 € | 1, `math` | 44.6 | Hydrogen/high | math raises the minimum to the mid floor |
+| why this Go worker pool deadlocks | 2.5, `code` | 50.6 | Hydrogen/high | 50.8 still clears the minimum |
+| find the race condition in this scheduler | 3, `code` | 56.6 | Opus/max | the only profile in this pool that reaches it |
 
-Add GLM 5.3 Flash (41.8, $0.15/$0.50 per million) and the first three go to
-GLM: it reaches both minimums and costs less than Luna and DeepSeek. Add
-Kimi K3.1 Pro (`frontier`: 55.1, $2/$10) as well and the last two go to Kimi
-instead of Opus, at half the price.
+Adding another model changes the answer only when its measured effort reaches
+the minimum and its estimated request cost is lower. An unmeasured effort
+stays unknown; the kit does not reuse a legacy-index score or another effort's
+best score. These are routing examples, not a qualification of review quality.
 
 Where the tiers come from: a third party, not the kit. The shipped catalog
 places every model it knows from the Artificial Analysis Intelligence Index
 through one published rule — frontier within 8 points of the best model of
 the day, mid within 20, small below — and records the evidence and the date
 beside each row; `delegation-router catalog show` prints it. That is how
-the kit knows that GPT-5.6 Sol (47.0) is `mid`, not `frontier`, whatever
-its name suggests, and that Mistral Large 3 (9.3) is `small`. With your own
+the kit distinguishes Terra/high (42.4, small) from Terra/max (51.3, mid);
+a model name alone does not establish the effort's band. With your own
 Artificial Analysis key (`AA_API_KEY` in your environment or in
 `~/.config/delegation-kit/.env`),
 `delegation-router catalog refresh` writes a current catalog on your machine
@@ -100,7 +101,7 @@ first, then the profiles it may pick from (names that already exist in the file)
 ```json
 "router": {
   "decider": {"kind": "llm", "profile": "deepseek-flash"},
-  "pool": ["luna-clerk", "deepseek-flash", "opus-reviewer"],
+  "pool": ["hydrogen-builder", "deepseek-flash", "opus-reviewer"],
   "default": "deepseek-flash"
 }
 ```
@@ -150,13 +151,13 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.36.0
+## Current release: 0.37.0
 
-Version 0.36.0 migrates the catalog and routing evidence to Artificial Analysis
-Intelligence Index v5.0. New Terra builder and Opus judge presets are available;
-Sonnet routine review uses high effort. Unmeasured efforts and incompatible
-local catalog versions no longer inherit a benchmark score. Existing personal
-configurations and router pools remain user-owned.
+Version 0.37.0 adds Hydrogen scout and builder profiles plus an explicit
+Carbon/high judge through agy, with exact account-inventory checks. Shipped
+Fable judgement profiles use 5.2/high. AA v5.0.1 scores are effort-specific;
+frontier starts at 56.6 and mid at 44.6. Personal router pools, defaults,
+deciders and explicit model choices stay user-owned.
 
 Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
 

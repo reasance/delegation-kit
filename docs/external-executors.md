@@ -32,7 +32,7 @@ are read from is in [keys and environment](user-configuration.md#keys-and-enviro
 | `token-plan-openai` | text roles: `text-patch` | minimal … max (xhigh) |
 | `deepseek-api` | text roles: `text-patch` | minimal … max (max) |
 | `openai-compatible` | text roles: `text-patch` | minimal … max, sent only when declared (none) |
-| `agy` | scout, builder, frontend-builder, reviewer, judgement: `read-only` | medium, high |
+| `agy` | scout, builder, frontend-builder, reviewer, judgement: `read-only` | low, medium, high; xhigh only for Hydrogen |
 | `codex` | text roles plus routine-review, material-review, security: `read-only` | none … max (high) |
 | `claude-code` | text roles plus routine-review, material-review, security: `read-only` | low … max (high) |
 
@@ -210,3 +210,12 @@ A run that hits the deadline publishes nothing. macOS ships neither
 guards are not task limits: a 20 s connect timeout on the HTTP adapters,
 and the short probes `check` runs against a CLI. On Grok, `check --json`
 reports `timeout_seconds` (the configured value or `null`).
+
+## Google profile availability
+
+Optional Hydrogen scout/builder profiles and a Carbon/high judge are shipped
+through `agy`. The runner validates effort per model and checks the exact
+requested CLI ID before dispatch. Carbon requires an enabled Ultra/Enterprise
+account. Missing access refuses the request without another model or an API
+substitution. The standalone adapter default remains Flash; shipped profiles
+name their own model and effort explicitly.

@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Run Qwen3.8-Max through the Qwen Cloud Token Plan OpenAI-compatible endpoint.
+# Run Qwen4 Max through the QwenCloud Token Plan OpenAI-compatible endpoint.
 #
-# Model upgrade monitoring: `delegation-qwen check` reports whether the
-# Qwen3.8-Max-0902 snapshot (qwen3.8-max-0902) is available on this endpoint.
-# When it appears, the migration is a model-id change in config/presets.json
-# and in the personal configuration — see docs/external-executors.md.
+# Existing profiles keep their exact model via DELEGATION_REQUESTED_MODEL.
+# Discovery checks the final Qwen4 ID; preview is never substituted.
 set -euo pipefail
 umask 077
 
@@ -16,17 +14,16 @@ while [ -L "$SOURCE" ]; do
 done
 ROOT="$(cd "$(dirname "$SOURCE")/.." && pwd)"
 RUNNER_NAME="delegation-qwen"
-PROVIDER_LABEL="Qwen3.8-Max"
+PROVIDER_LABEL="Qwen"
 KEY_FILE="${DELEGATION_QWEN_KEY_FILE:-$ROOT/config/qwen-token-plan.env}"
 API_KEY_VAR="QWEN_TOKEN_PLAN_API_KEY"
-MODEL="${DELEGATION_REQUESTED_MODEL:-qwen3.8-max}"
-# Post-training refresh released 2026-09-02 on QwenCloud; not yet on this
-# Token Plan endpoint. check reports its availability so the re-pin is
-# deliberate when Alibaba propagates it.
-MODEL_NEXT="qwen3.8-max-0902"
+MODEL="${DELEGATION_REQUESTED_MODEL:-qwen4-max}"
+# Final model discovery only; the legacy next_snapshot JSON key is kept
+# for callers that already consume the check output.
+MODEL_NEXT="qwen4-max"
 BACKEND="token-plan-openai"
-API_URL="https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions"
-DEFAULT_EFFORT="xhigh"
+API_URL="https://token-plan.maas.qwencloudapi.com/compatible-mode/v1/chat/completions"
+DEFAULT_EFFORT="high"
 BILLING="credits"
 
 # shellcheck source=bin/lib/delegation-runner-common.sh
@@ -72,15 +69,16 @@ provider_request_body() {
     '{model:$model,messages:[{role:"user",content:$prompt}],max_tokens:$max_tokens,reasoning_effort:$effort}'
 }
 
-# Whether the QwenCloud post-training refresh (qwen3.8-max-0902) is available
+# Whether the final Qwen4 model is available
 # on this Token Plan endpoint. Read-only GET /models; never dispatches. The
 # result is informational: the re-pin is a preset and configuration edit, not a
 # runtime side effect.
 models_endpoint_available() {
   local key="$1" body
-  body="$(curl -sS --connect-timeout 10 --max-time 20 \
+  body="$(curl -fsS --connect-timeout 10 --max-time 20 \
     "${API_URL%/chat/completions}/models" \
-    -H "Authorization: Bearer $key" 2>/dev/null)" || return 1
+    -H "Authorization: Bearer $key" 2>/dev/null)" || return 2
+  printf '%s' "$body" | jq -e '.data | type == "array"' >/dev/null 2>&1 || return 2
   printf '%s' "$body" | jq -e --arg id "$MODEL_NEXT" \
     '.data | type == "array" and any(.[]; .id == $id)' >/dev/null 2>&1
 }
@@ -88,7 +86,11 @@ models_endpoint_available() {
 next_snapshot_status() {
   local key="${QWEN_TOKEN_PLAN_API_KEY:-}"
   [ -n "$key" ] || { printf 'unknown'; return; }
-  if models_endpoint_available "$key"; then printf 'available'; else printf 'not-yet-available'; fi
+  if models_endpoint_available "$key"; then
+    printf 'available'
+  else
+    case "$?" in 2) printf 'unknown' ;; *) printf 'not-yet-available' ;; esac
+  fi
 }
 
 provider_check_extra_json() {
@@ -100,7 +102,7 @@ provider_check_extra_text() {
   case "$(next_snapshot_status)" in
     available)         printf '  next snapshot: %s AVAILABLE on this endpoint — a profile can name it as its model\n' "$MODEL_NEXT" ;;
     not-yet-available) printf '  next snapshot: %s not yet on this endpoint\n' "$MODEL_NEXT" ;;
-    *)                 printf '  next snapshot: %s availability unknown (key not configured)\n' "$MODEL_NEXT" ;;
+    *)                 printf '  next snapshot: %s availability unknown (credential or discovery check failed)\n' "$MODEL_NEXT" ;;
   esac
 }
 

@@ -25,7 +25,7 @@ from delegation_config import (
 
 ENDPOINTS = {
     "deepseek-api": "https://api.deepseek.com/v1/chat/completions",
-    "token-plan-openai": "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "token-plan-openai": "https://token-plan.maas.qwencloudapi.com/compatible-mode/v1/chat/completions",
 }
 
 

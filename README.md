@@ -151,15 +151,15 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.37.0
+## Current release: 0.38.0
 
-Version 0.37.0 adds Hydrogen scout and builder profiles plus an explicit
-Carbon/high judge through agy, with exact account-inventory checks. Shipped
-Fable judgement profiles use 5.2/high. AA v5.0.1 scores are effort-specific;
-frontier starts at 56.6 and mid at 44.6. Personal router pools, defaults,
-deciders and explicit model choices stay user-owned.
+Add optional Qwen4 Max/high builder, clerk and scout profiles. The standalone
+Qwen adapter uses the final model and current Token Plan endpoint; existing
+Qwen3.8 profile pins and personal pools stay yours. Discovery distinguishes an
+unauthorized or failed model list from a successful list missing the exact ID.
+Qwen4's unnamed AA score is not assigned to high/xhigh.
 
-Every earlier release is in [`CHANGELOG.md`](./CHANGELOG.md).
+See [the changelog](CHANGELOG.md) and [compatibility checks](docs/compatibility.md).
 
 ## Documentation
 
@@ -190,8 +190,10 @@ runtime.
 
 MIT. See [LICENSE](LICENSE).
 
+The optional [Qwen4 Max profile](docs/external-executors.md#qwen4-max-on-token-plan) provides builder, clerk and scout work via the authenticated Token Plan API at high effort. It leaves personal pools and existing Qwen3.8 profiles intact; AA has one 42.9 default score with no effort disclosed.
+
 <!-- BEGIN controller-models: benchmark-reference -->
 ## Model benchmarks and availability
 
-[Current v5.0.1 reference](docs/model-benchmarks.md): Fable 5.2 and Carbon scores, provider contracts and integration choices. Carbon is optional via agy; agy selections use exact inventory checks; Carbon needs Ultra/Enterprise.
+[Current v5.0.1 reference](docs/model-benchmarks.md): Qwen4 Max, Fable 5.2 and Carbon scores, provider contracts and integration choices. Carbon is optional via agy; agy selections use exact inventory checks; Carbon needs Ultra/Enterprise.
 <!-- END controller-models: benchmark-reference -->

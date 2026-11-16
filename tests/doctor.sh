@@ -122,7 +122,7 @@ ln -sfn "$CONTRACT_DATA/bin/delegation-patch-verify" \
 mkdir -p "$CONTRACT_DATA/bin/lib"
 cp "$ROOT"/bin/lib/*.sh "$ROOT"/bin/lib/delegation_*.py "$CONTRACT_DATA/bin/lib/"
 cp "$ROOT/config/router-prompt.v1.md" "$CONTRACT_DATA/config/"
-for command in delegation-config delegation-run delegation-openai-compatible delegation-route delegation-router; do
+for command in delegation-config delegation-run delegation-openai-compatible delegation-route delegation-router delegation-qwen; do
   cp "$ROOT/bin/$command" "$CONTRACT_DATA/bin/$command"
   chmod 755 "$CONTRACT_DATA/bin/$command"
   ln -sfn "$CONTRACT_DATA/bin/$command" "$CONTRACT_BIN/$command"
@@ -134,6 +134,10 @@ if env PATH="$CONTRACT_BIN:$TEST_TOOLS:$PATH" CLAUDE_HOME="$TMP/claude" \
 else
   :
 fi
+grep -Fq '[ OK ] delegation-qwen installed (adapter default qwen4-max/high; text-patch adapter)' "$TMP/contract-doctor.log" || {
+  printf 'doctor did not recognize the installed final Qwen4 adapter\n' >&2
+  exit 1
+}
 grep -Fq '[ OK ] route discovery reads the personal configuration' "$TMP/contract-doctor.log" || {
   sed 's/^/    /' "$TMP/contract-doctor.log" >&2
   printf 'doctor did not validate route discovery\n' >&2

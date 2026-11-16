@@ -465,6 +465,19 @@
       "parameters": {
         "effort": "high"
       }
+    },
+    "qwen4-max": {
+      "adapter": "token-plan-openai",
+      "model": "qwen4-max",
+      "family": "alibaba",
+      "roles": [
+        "builder",
+        "clerk",
+        "scout"
+      ],
+      "parameters": {
+        "effort": "high"
+      }
     }
   }
 }

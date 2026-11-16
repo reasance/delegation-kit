@@ -10,6 +10,45 @@ below with the numbers observed after running the
 
 ## Verified snapshot
 
+**0.38.0, checked on 2026-11-16** on macOS with Claude Code `2.1.325`,
+Codex CLI `0.169.0`, Qwen Code `0.27.1`, agy `1.5.9`, Python `3.15.2`
+and gh `2.104.0`. Claude, Codex, bin, data and configuration were installed
+in isolated directories. Real native authentication was used only for the
+approved pings; the temporary Codex auth copy was removed afterwards.
+
+- **Static doctor:** `50 OK, 1 WARN, 0 FAIL`. The warning is deliberate
+  `multi_agent = false` in the isolated Codex configuration.
+- **Live doctor:** one `doctor.sh --ping` pass returned `52 OK, 1 WARN,
+  0 FAIL`. Exactly two native invocations ran: the installed `luna-clerk`/max
+  profile returned PONG, and Claude `sonnet`/low returned PONG. No model retry
+  or fallback was used. Claude tools/hooks/MCP were disabled. These are
+  reachability checks; they do not attest provider identity or qualify a
+  model's coding quality.
+- **Qwen credential and discovery:** the pre-existing local Token Plan key
+  returned 401 on both hosts. The owner authorized replacement in the two
+  private files with the already working Qwen Code credential. Values were
+  never printed or committed; personal profiles, pool, default and decider
+  were not rewritten. The updated source adapter lists final qwen4-max as
+  available. Authentication and discovery errors now report unknown, rather
+  than falsely claiming the final model has not rolled out.
+- **Catalog:** the complete 742-row AA v5.0.1 native refresh ran in the
+  isolated installed kit. All **27 measured matches** agree with the
+  controller's indexes, variants, tiers and official prices across 30 models;
+  three remain unmeasured. The controller's explicit versioned evidence is
+  retained. Qwen4's 42.9 default measurement is not assigned to high/xhigh,
+  so the new high profile has no automatic score/tier. Explicit selection
+  remains possible. Top is 64.6; frontier/mid floors remain 56.6/44.6.
+
+A preliminary mixed fixture used the real Codex home and reported missing
+optional profiles/guard. Reinstalling into a fully isolated fixture resolved
+those static checks before either live ping; no real host configuration was
+changed to satisfy the gate. The preliminary and final receipts are retained.
+
+Offline release gate: **14 suites passed in 49 seconds**, 11 npm-wrapper tests,
+Ruff 0.13.0, ShellCheck and version consistency passed.
+
+### Previous snapshot — 0.37.0
+
 **0.37.0, checked on 2026-11-15** on macOS with
 Claude Code `2.1.323`, Codex CLI `0.168.0`, agy `1.5.9`, Python `3.15.2`
 and gh `2.104.0`, from isolated Claude, Codex, bin, data and configuration

@@ -673,14 +673,14 @@ else
   warn "delegation-grok not installed — re-run ./install.sh"
 fi
 
-# ---- Qwen3.8-Max text-patch adapter ----
+# ---- Qwen4 Max text-patch adapter ----
 hdr "Qwen executor (token-plan-openai)"
 if ! have jq; then
   warn "jq not on PATH — delegation-qwen cannot run"
 elif have delegation-qwen; then
   qwen_check="$(delegation-qwen check --json 2>/dev/null || true)"
-  if [ -n "$qwen_check" ] && printf '%s' "$qwen_check" | jq -e '.model == "qwen3.8-max" and .adapter == "token-plan-openai"' >/dev/null 2>&1; then
-    ok "delegation-qwen installed (adapter default qwen3.8-max/xhigh; text-patch adapter)"
+  if [ -n "$qwen_check" ] && printf '%s' "$qwen_check" | jq -e '.model == "qwen4-max" and .adapter == "token-plan-openai" and .default_effort == "high"' >/dev/null 2>&1; then
+    ok "delegation-qwen installed (adapter default qwen4-max/high; text-patch adapter)"
     qwen_selected="$(printf '%s' "$qwen_check" | jq -r '.selected_backend')"
     [ "$qwen_selected" = none ] \
       && info "Qwen Token Plan runtime unavailable" \

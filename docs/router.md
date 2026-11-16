@@ -78,7 +78,7 @@ it the router is off and `check` says so.
   "review_policy": "optional",
   "profiles": {
     "flash": {"adapter": "deepseek-api", "model": "deepseek-flash", "roles": ["clerk"]},
-    "qwen":  {"adapter": "token-plan-openai", "model": "qwen3.8-max", "roles": ["builder"]},
+    "qwen":  {"adapter": "token-plan-openai", "model": "qwen4-max", "roles": ["builder"], "parameters": {"effort": "high"}},
     "sol":   {"adapter": "openai-compatible", "model": "gpt-6.1-sol", "roles": ["judgement"],
               "base_url": "https://api.openai.com/v1", "credential_env": "OPENAI_API_KEY"}
   },

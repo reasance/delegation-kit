@@ -13,6 +13,10 @@ All notable changes to delegation-kit are documented here.
 - Distinguish failed or unauthorized model discovery from a successful list without the exact model ID; preview does not count as final-model access.
 
 
+### Fixed
+
+- Keep the decider deadline regression independent of CLI startup on busy runners; the provider timeout remains one second in the test.
+
 ## [0.37.0] — 2026-11-15
 
 - Add agy Hydrogen scout/medium and builder/high/xhigh profiles plus an optional Carbon/high judge. Extend the adapter to low/medium/high/xhigh with per-model validation and exact inventory checks; preserve prompt-only isolation and personal router choices.

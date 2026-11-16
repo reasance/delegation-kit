@@ -1,6 +1,6 @@
 import json
 import threading
-import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 
 from router.fakes import (
     Fixture,
@@ -301,11 +301,17 @@ class CliTests(Fixture):
         self.assertEqual(out["shadow"]["profile"], "frontier")
 
     def test_decider_timeout_is_bounded(self):
+        request_started = threading.Event()
+        response_allowed = threading.Event()
+        response_started = threading.Event()
+
         class Slow(Provider):
             requests = []  # its late write must not land in the next test's record
 
             def do_POST(self):
-                time.sleep(3)
+                request_started.set()
+                response_allowed.wait(15)
+                response_started.set()
                 Provider.do_POST(self)
 
         slow = LoopbackServer(("127.0.0.1", 0), Slow)
@@ -317,14 +323,27 @@ class CliTests(Fixture):
         )
         self.config["router"]["decider"]["timeout"] = 1
         self.save()
-        started = time.monotonic()
-        out = json.loads(
-            self.run_cli(
-                "decide", "--prompt-file", str(self.base / "prompt"), "--json"
-            ).stdout
-        )
-        self.assertLess(time.monotonic() - started, 2.5)
-        self.assertTrue(out["undecidable"])
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            response = executor.submit(
+                self.run_cli,
+                "decide",
+                "--prompt-file",
+                str(self.base / "prompt"),
+                "--json",
+            )
+            try:
+                # CLI/interpreter startup is outside the provider deadline.
+                self.assertTrue(
+                    request_started.wait(15), "decider never reached provider"
+                )
+                try:
+                    result = response.result(timeout=2.5)
+                except FutureTimeoutError:
+                    self.fail("decider did not honor its one-second provider deadline")
+                self.assertFalse(response_started.is_set())
+                self.assertTrue(json.loads(result.stdout)["undecidable"])
+            finally:
+                response_allowed.set()
 
     def test_local_catalog_overlays_the_shipped_one_when_newer(self):
         local = self.base / "data/config/catalog.local.json"

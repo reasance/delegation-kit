@@ -44,8 +44,16 @@ optional profiles/guard. Reinstalling into a fully isolated fixture resolved
 those static checks before either live ping; no real host configuration was
 changed to satisfy the gate. The preliminary and final receipts are retained.
 
-Offline release gate: **14 suites passed in 49 seconds**, 11 npm-wrapper tests,
+Offline release gate: **14 suites passed in 43 seconds**, 11 npm-wrapper tests,
 Ruff 0.13.0, ShellCheck and version consistency passed.
+
+The first GitHub runner pass exposed a pre-existing test that included cold
+CLI/interpreter startup in a 2.5-second provider-deadline assertion. The test
+now waits for the loopback provider to receive the request before checking
+completion while its response is withheld. A controlled three-second startup
+delay reproduces the old failure and passes the new test; a negative control
+that ignores the configured one-second deadline still fails. Production
+timeout handling is unchanged, and no live ping was repeated for this test fix.
 
 ### Previous snapshot — 0.37.0
 

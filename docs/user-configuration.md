@@ -74,9 +74,9 @@ Rules:
   text request with optional Bearer auth. It never calls `/models`, never
   uses tools and never retries. A declared `effort` goes out as
   `reasoning_effort`; without one the field is not sent.
-- Optional shipped `hydrogen-*` and `carbon-judge` profiles use `agy`.
-  Hydrogen supports low/medium/high/xhigh. Carbon supports low/medium/high
-  and requires its exact account-enabled CLI ID; no API fallback is selected.
+- Optional shipped `hydrogen-*`, `neon-*` and `carbon-judge` profiles use `agy`.
+  Hydrogen and Neon support low/medium/high/xhigh. Carbon supports low/medium/high.
+  The runner requires the exact account-enabled CLI ID before dispatch.
 
 **GPT-6.1 Terra.** The catalog includes `gpt-6.1-terra`, its current prices
 and its per-effort Artificial Analysis results. To select it, add a personal
@@ -292,6 +292,8 @@ replace the user's router pool or authorize any delegation.
 
 New configurations include `hydrogen-scout` (medium), `hydrogen-builder`
 (high), `hydrogen-builder-xhigh`, and `carbon-judge` (high), all using agy.
+Neon adds `neon-builder` (high) and `neon-judge` (xhigh). Select these profiles
+explicitly on an account whose `agy models` lists the corresponding effort.
 Builder output stays a textual patch for the lead to verify and apply.
 Carbon requires an enabled Ultra/Enterprise account and its exact CLI model
 ID in the isolated account inventory. A missing model fails before dispatch.

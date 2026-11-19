@@ -1,5 +1,5 @@
 {
-  "catalog_version": "2026-11-16",
+  "catalog_version": "2026-11-19",
   "tiering": {
     "rule": "index-bands-v1",
     "frontier_within": 8,
@@ -7,7 +7,7 @@
     "index_version": "5.0.1",
     "top_index": 64.6,
     "source": "artificialanalysis",
-    "date": "2026-11-16",
+    "date": "2026-11-19",
     "attribution": "https://artificialanalysis.ai/"
   },
   "models": {
@@ -391,6 +391,42 @@
       },
       "price_source": "google-hydrogen-pricing 2026-11-13"
     },
+    "gemini-4-neon": {
+      "provider": "google",
+      "serving_status": "available",
+      "serving_source": "agy-models-docs",
+      "aa_slug": "gemini-4-neon",
+      "tier": "frontier",
+      "code": true,
+      "price": {
+        "in": 3.0,
+        "out": 15.0
+      },
+      "context": 1048576,
+      "json_mode": true,
+      "evidence": {
+        "source": "artificialanalysis",
+        "name": "Gemini 4 Neon",
+        "aa_id": "7c667f2d-0149-4eb1-864c-7e66c166ad88",
+        "match": "slug",
+        "index": 61.4,
+        "variant": "xhigh",
+        "variants": {
+          "xhigh": 61.4,
+          "high": 59.6,
+          "medium": 54.9,
+          "low": 44.1
+        },
+        "coding_index": null,
+        "math_index": null,
+        "date": "2026-11-19",
+        "via": "api",
+        "index_version": "5.0.1",
+        "availability": "measured",
+        "version_source": "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
+      },
+      "price_source": "google-neon-pricing 2026-11-19"
+    },
     "glm-5.3": {
       "provider": "zai",
       "aa_slug": "glm-5-3",
@@ -595,6 +631,76 @@
         "version_source": "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
       },
       "price_source": "openai-pricing 2026-10-27"
+    },
+    "gpt-6.2-astra": {
+      "provider": "openai",
+      "aa_slug": "gpt-6-2-astra",
+      "tier": "frontier",
+      "code": true,
+      "price": {
+        "in": 8.0,
+        "out": 40.0
+      },
+      "context": 272000,
+      "json_mode": false,
+      "evidence": {
+        "source": "artificialanalysis",
+        "name": "GPT-6.2 Astra",
+        "aa_id": "75c1b0b8-9db3-4c7e-95be-d74e59defee4",
+        "match": "slug",
+        "index": 62.1,
+        "variant": "max",
+        "variants": {
+          "max": 62.1,
+          "xhigh": 61.6,
+          "high": 60.1,
+          "medium": 57,
+          "low": 45.7
+        },
+        "coding_index": null,
+        "math_index": null,
+        "date": "2026-11-18",
+        "via": "api",
+        "index_version": "5.0.1",
+        "availability": "measured",
+        "version_source": "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
+      },
+      "price_source": "openai-pricing 2026-11-18"
+    },
+    "gpt-6.2-sol": {
+      "provider": "openai",
+      "aa_slug": "gpt-6-2-sol",
+      "tier": "frontier",
+      "code": true,
+      "price": {
+        "in": 2.0,
+        "out": 10.0
+      },
+      "context": 500000,
+      "json_mode": false,
+      "evidence": {
+        "source": "artificialanalysis",
+        "name": "GPT-6.2 Sol",
+        "aa_id": "a1a84b18-e8c9-48fb-8e04-6003bd9f6ff4",
+        "match": "slug",
+        "index": 57.3,
+        "variant": "max",
+        "variants": {
+          "max": 57.3,
+          "xhigh": 55.7,
+          "high": 54.9,
+          "medium": 52.7,
+          "low": 40.6
+        },
+        "coding_index": null,
+        "math_index": null,
+        "date": "2026-11-18",
+        "via": "api",
+        "index_version": "5.0.1",
+        "availability": "measured",
+        "version_source": "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
+      },
+      "price_source": "openai-pricing 2026-11-18"
     },
     "grok-4.7": {
       "provider": "xai",

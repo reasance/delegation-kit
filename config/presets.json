@@ -478,6 +478,30 @@
       "parameters": {
         "effort": "high"
       }
+    },
+    "neon-builder": {
+      "adapter": "agy",
+      "model": "gemini-4-neon",
+      "family": "google",
+      "roles": [
+        "builder",
+        "frontend-builder",
+        "reviewer"
+      ],
+      "parameters": {
+        "effort": "high"
+      }
+    },
+    "neon-judge": {
+      "adapter": "agy",
+      "model": "gemini-4-neon",
+      "family": "google",
+      "roles": [
+        "judgement"
+      ],
+      "parameters": {
+        "effort": "xhigh"
+      }
     }
   }
 }

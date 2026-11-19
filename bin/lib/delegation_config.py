@@ -435,7 +435,7 @@ def validate(c):
             and p["model"] in {"gemini-4-carbon", "gemini-4-argon", "gemini-3.8-flash"}
             and params.get("effort") == "xhigh"
         ):
-            raise ValueError("xhigh is supported on Hydrogen, not this Gemini model")
+            raise ValueError("xhigh is supported on Hydrogen and Neon")
         # Whether Meta may train on what a Muse Code run sends; off unless set.
         if "contributor_mode" in params and params["contributor_mode"] not in {
             "on",

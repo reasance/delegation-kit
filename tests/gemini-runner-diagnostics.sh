@@ -112,17 +112,18 @@ rc=0; DELEGATION_TIMEOUT=abc PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini"
 rc=0; PATH="$TMP/bin:$PATH" "$ROOT/bin/delegation-gemini" run --lane policy-annotation --prompt-file "$TMP/prompt" --output "$TMP/results/unsupported-role.out" --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
 [ "$rc" = 78 ] || fail "unsupported role returned $rc"
 [ ! -e "$TMP/results/unsupported-role.out" ] || fail "unsupported role created output"
-# New model profiles keep the exact model/level and the same isolation contract.
-for effort in medium high xhigh; do
+# Verify that each selected model and effort reaches the isolated CLI unchanged.
+for variant in hydrogen-medium hydrogen-high hydrogen-xhigh neon-high neon-xhigh; do
   rc=0
-  model="gemini-4-hydrogen-$effort"
-  DELEGATION_REQUESTED_MODEL=gemini-4-hydrogen DELEGATION_PROFILE_EFFORT="$effort" \
+  effort="${variant##*-}"
+  model="gemini-4-$variant"
+  DELEGATION_REQUESTED_MODEL="gemini-4-${variant%-*}" DELEGATION_PROFILE_EFFORT="$effort" \
     FAKE_AGY_MODELS="$model" FAKE_EXPECT_MODEL="$model" FAKE_EXPECT_EFFORT="$effort" \
     PATH="$TMP/bin:$PATH" TMPDIR="$TMP/runtime" "$ROOT/bin/delegation-gemini" run \
-    --lane builder --prompt-file "$TMP/prompt" --output "$TMP/results/hydrogen-$effort.out" \
+    --lane builder --prompt-file "$TMP/prompt" --output "$TMP/results/$variant.out" \
     --workdir "$TMP/work" >/dev/null 2>&1 || rc=$?
-  [ "$rc" = 0 ] || fail "Hydrogen/$effort returned $rc"
-  json "$TMP/results/hydrogen-$effort.out.metrics.json" ".runtime_model == \"$model\" and .model_identity_source == \"requested-only\""
+  [ "$rc" = 0 ] || fail "$variant returned $rc"
+  json "$TMP/results/$variant.out.metrics.json" ".runtime_model == \"$model\" and .model_identity_source == \"requested-only\""
 done
 rc=0
 DELEGATION_REQUESTED_MODEL=gemini-4-carbon FAKE_AGY_MODELS=gemini-4-carbon-high-extra \

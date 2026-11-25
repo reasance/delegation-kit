@@ -51,7 +51,7 @@ class EvidenceVersions(unittest.TestCase):
             "evidence": {
                 "source": "artificialanalysis",
                 "date": "2026-10-28",
-                "index_version": "5.0.1",
+                "index_version": "5.0.2",
                 "index": 51,
                 "variants": {"max": 51},
             },
@@ -59,7 +59,7 @@ class EvidenceVersions(unittest.TestCase):
         cat = {
             "catalog_version": "2026-10-28",
             "tiering": {
-                "index_version": "5.0.1",
+                "index_version": "5.0.2",
                 "top_index": 58.4,
                 "frontier_within": 8,
                 "mid_within": 20,
@@ -80,7 +80,7 @@ class EvidenceVersions(unittest.TestCase):
         self.assertIsNone(profile_meta("terra", profile, cat)["score"])
         self.assertIsNone(profile_meta("terra", profile, cat)["tier"])
         row["evidence"]["variants"] = saved
-        row["evidence"]["index_version"] = "4.3.2"
+        row["evidence"]["index_version"] = "5.0.1"
         self.assertIsNone(profile_meta("terra", profile, cat)["score"])
 
     def test_null_clears_previous_score_and_exact_slug_avoids_name_collision(self):
@@ -110,6 +110,10 @@ class EvidenceVersions(unittest.TestCase):
             },
         ]
         result, _ = refresh(cat, rows, "2026-10-28")
+        self.assertEqual(result["tiering"]["index_version"], "5.0.2")
+        self.assertEqual(
+            result["models"]["flash"]["evidence"]["index_version"], "5.0.2"
+        )
         self.assertIsNone(result["models"]["flash"]["tier"])
         self.assertIsNone(result["models"]["flash"]["evidence"]["index"])
         self.assertEqual(
@@ -132,7 +136,7 @@ class OverlayVersions(Fixture):
                     "catalog_version": "2099-01-01",
                     "models": {},
                     "tiering": {
-                        "index_version": "4.3.2",
+                        "index_version": "5.0.1",
                         "top_index": 100,
                         "frontier_within": 8,
                         "mid_within": 20,

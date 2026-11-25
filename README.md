@@ -31,8 +31,8 @@ configuration judges the models.
    cannot steer it.
 3. **The rating becomes a minimum score** on the same public index that
    places the models: up to 1, none; at 2, the bottom of the mid band
-   (44.6 in the November 15 v5.0.1 snapshot); from 3, the frontier floor
-   (56.6); in between, in proportion (2.5 → 50.6). `math`, `rare` and `tools` raise it to the
+   (44.8 in the November 25 v5.0.2 snapshot); from 3, the frontier floor
+   (56.8); in between, in proportion (2.5 → 50.8). `math`, `rare` and `tools` raise it to the
    mid band, a very long request to the frontier band; `code` keeps only
    code-capable profiles.
 4. **The cheapest profile that reaches it wins**, whatever its tier, priced
@@ -151,13 +151,11 @@ the error codes and the evaluation harness.
   which pool models this machine cannot reach; `--ping` runs a live
   round-trip.
 
-## Current release: 0.38.0
+## Current release: 0.39.0
 
-Add optional Qwen4 Max/high builder, clerk and scout profiles. The standalone
-Qwen adapter uses the final model and current Token Plan endpoint; existing
-Qwen3.8 profile pins and personal pools stay yours. Discovery distinguishes an
-unauthorized or failed model list from a successful list missing the exact ID.
-Qwen4's unnamed AA score is not assigned to high/xhigh.
+Pick Gemini 4 Neon explicitly for a builder at high or a judge at xhigh
+through Antigravity. The router uses Artificial Analysis Intelligence Index
+v5.0.2 with floors of 44.8 for mid and 56.8 for frontier.
 
 See [the changelog](CHANGELOG.md) and [compatibility checks](docs/compatibility.md).
 
@@ -195,5 +193,5 @@ The optional [Qwen4 Max profile](docs/external-executors.md#qwen4-max-on-token-p
 <!-- BEGIN controller-models: benchmark-reference -->
 ## Model benchmarks and availability
 
-[Current v5.0.1 reference](docs/model-benchmarks.md): Qwen4 Max, Fable 5.2 and Carbon scores, provider contracts and integration choices. Carbon is optional via agy; agy selections use exact inventory checks; Carbon needs Ultra/Enterprise.
+[Current v5.0.2 reference](docs/model-benchmarks.md): Qwen4 Max, Fable 5.2 and Carbon scores, provider contracts and integration choices. Carbon is optional via agy; agy selections use exact inventory checks; Carbon needs Ultra/Enterprise.
 <!-- END controller-models: benchmark-reference -->

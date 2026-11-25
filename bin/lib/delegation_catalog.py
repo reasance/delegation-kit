@@ -47,7 +47,7 @@ AA_KEY_VAR = "AA_API_KEY"
 
 
 RULE = "index-bands-v1"
-INDEX_VERSION = "5.0.1"
+INDEX_VERSION = "5.0.2"
 VERSION_SOURCE = "https://artificialanalysis.ai/methodology/intelligence-benchmarking"
 
 

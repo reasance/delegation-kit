@@ -4,6 +4,17 @@ All notable changes to delegation-kit are documented here.
 
 ## [Unreleased]
 
+## [0.39.0] — 2026-11-25
+
+### Added
+
+- Add explicit Antigravity `neon-builder` and `neon-judge` profiles for accounts that expose those effort IDs.
+
+### Changed
+
+- Refresh shipped and local catalog evidence to Artificial Analysis Intelligence Index v5.0.2. Router floors are 44.8 for mid and 56.8 for frontier.
+- Use the measured max result for GLM-5.3-Flash profiles at that effort.
+
 ## [0.38.0] — 2026-11-16
 
 ### Changed

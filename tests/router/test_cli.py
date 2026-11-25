@@ -185,10 +185,10 @@ class CliTests(Fixture):
         self.assertEqual(out["decider"]["raw"], Provider.reply)
 
     def test_a_half_point_moves_the_minimum(self):
-        # 2 of 4 needs the mid band (44.6): `mid` reaches it. 2.5 needs 50.6,
+        # 2 of 4 needs the mid band (44.8): `mid` reaches it. 2.5 needs 50.8,
         # halfway to the frontier band: only `frontier` reaches it.
         decide = ("decide", "--prompt-file", str(self.base / "prompt"), "--json")
-        for rating, minimum, profile in [(2, 44.6, "mid"), (2.5, 50.6, "frontier")]:
+        for rating, minimum, profile in [(2, 44.8, "mid"), (2.5, 50.8, "frontier")]:
             with self.subTest(rating):
                 Provider.reply = {
                     "choices": [
@@ -350,7 +350,7 @@ class CliTests(Fixture):
         local.parent.mkdir(parents=True)
         tiering = {
             "rule": "index-bands-v1",
-            "index_version": "5.0.1",
+            "index_version": "5.0.2",
             "frontier_within": 8,
             "mid_within": 20,
             "top_index": 58,
@@ -366,7 +366,7 @@ class CliTests(Fixture):
             "json_mode": True,
             "evidence": {
                 "source": "artificialanalysis",
-                "index_version": "5.0.1",
+                "index_version": "5.0.2",
                 "name": "Mid Model",
                 "index": 57,
                 "variant": "max",
